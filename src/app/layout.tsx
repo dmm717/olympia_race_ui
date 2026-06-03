@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat, Inter, Space_Grotesk } from "next/font/google";
 import { SocketProvider } from "@/components/SocketProvider";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -48,6 +49,16 @@ export default function RootLayout({
         <SocketProvider>
           {children}
         </SocketProvider>
+        <Toaster 
+          position="top-right" 
+          toastOptions={{
+            style: {
+              background: '#242124',
+              color: '#fff',
+              border: '1px solid #454245',
+            }
+          }} 
+        />
       </body>
     </html>
   );

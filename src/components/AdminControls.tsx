@@ -3,6 +3,7 @@
 import { useSocket } from "./SocketProvider";
 import { useState } from "react";
 import AdminQuestionManager from "./AdminQuestionManager";
+import toast from "react-hot-toast";
 
 export default function AdminControls() {
   const { socket, gameState } = useSocket();
@@ -17,9 +18,32 @@ export default function AdminControls() {
   };
 
   const handleResetScore = () => {
-    if(confirm("Bạn có chắc muốn Reset điểm không?")) {
-      socket.emit('admin_reset');
-    }
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-2">
+          <span className="font-bold">Bạn có chắc muốn Reset điểm không?</span>
+          <div className="flex gap-2 mt-2">
+            <button 
+              className="bg-error text-white px-4 py-1 rounded text-sm"
+              onClick={() => {
+                socket.emit('admin_reset');
+                toast.dismiss(t.id);
+                toast.success('Đã reset điểm!');
+              }}
+            >
+              Chắc chắn
+            </button>
+            <button 
+              className="bg-surface-variant text-on-surface-variant px-4 py-1 rounded text-sm"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              Huỷ
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: 5000 }
+    );
   };
 
   const handleSetMode = (mode: 'manual' | 'auto') => {

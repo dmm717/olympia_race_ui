@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
+import toast from 'react-hot-toast';
 
 export interface RoundState {
   isPaused?: boolean;
@@ -77,28 +78,38 @@ export function SocketProvider({ children }: { children: ReactNode }) {
 
     newSocket.on('connect', () => {
       setIsConnected(true);
-      console.log('Connected to Game Server');
+      toast.success('Đã kết nối đến máy chủ trò chơi');
     });
 
     newSocket.on('disconnect', () => {
       setIsConnected(false);
-      console.log('Disconnected from Game Server');
+      toast.error('Đã ngắt kết nối khỏi máy chủ');
     });
 
     newSocket.on('connect_error', (err) => {
       console.error('Socket Connection Error:', err.message);
       setIsConnected(false);
-      alert('Không thể kết nối đến máy chủ. Đang thử lại...');
+      toast.error('Không thể kết nối đến máy chủ. Đang thử lại...');
     });
 
     newSocket.on('auth_error', (msg: string) => {
-      alert(msg);
+      toast.error(msg);
       newSocket.disconnect();
     });
 
     newSocket.on('sync_state', (state: GameState) => {
       console.log('Received new state:', state);
       setGameState(state);
+    });
+
+    newSocket.on('notification', (data: { message: string, type: 'success' | 'error' | 'info' }) => {
+      if (data.type === 'success') {
+        toast.success(data.message, { duration: 4000 });
+      } else if (data.type === 'error') {
+        toast.error(data.message, { duration: 4000 });
+      } else {
+        toast(data.message, { icon: 'ℹ️', duration: 4000 });
+      }
     });
 
     newSocket.on('sync_questions', (data: any) => {

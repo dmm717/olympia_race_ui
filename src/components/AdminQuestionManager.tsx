@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useSocket } from "./SocketProvider";
+import toast from "react-hot-toast";
 
 export default function AdminQuestionManager({ onClose }: { onClose: () => void }) {
   const { questions, fetchQuestions, saveQuestions } = useSocket();
@@ -22,8 +23,7 @@ export default function AdminQuestionManager({ onClose }: { onClose: () => void 
     try {
       const parsed = JSON.parse(jsonText);
       saveQuestions(parsed);
-      setError(null);
-      alert("Đã lưu ngân hàng câu hỏi thành công!");
+      toast.success("Đã lưu ngân hàng câu hỏi thành công!");
       onClose();
     } catch (e) {
       setError("Lỗi cú pháp JSON! Vui lòng kiểm tra lại dấu phẩy, ngoặc kép.");
