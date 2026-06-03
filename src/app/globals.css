@@ -60,13 +60,13 @@
   --spacing-gutter: 32px;
   --spacing-base: 8px;
 
-  --font-body-lg: "Inter", sans-serif;
-  --font-label-caps: "Space Grotesk", sans-serif;
-  --font-headline-lg-mobile: "Montserrat", sans-serif;
-  --font-display-lg: "Montserrat", sans-serif;
-  --font-body-md: "Inter", sans-serif;
-  --font-headline-lg: "Montserrat", sans-serif;
-  --font-headline-xl: "Montserrat", sans-serif;
+  --font-body-lg: var(--font-inter), sans-serif;
+  --font-label-caps: var(--font-space-grotesk), sans-serif;
+  --font-headline-lg-mobile: var(--font-montserrat), sans-serif;
+  --font-display-lg: var(--font-montserrat), sans-serif;
+  --font-body-md: var(--font-inter), sans-serif;
+  --font-headline-lg: var(--font-montserrat), sans-serif;
+  --font-headline-xl: var(--font-montserrat), sans-serif;
 
 }
 
@@ -193,6 +193,26 @@ body {
     opacity: 0;
     transform: translateY(30px);
     transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-on-scroll.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Admin Button Utility */
+.btn-admin {
+    padding: 0.25rem 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-admin:hover {
+    opacity: 0.8;
+    transform: translateY(-1px);
 }
 .reveal-on-scroll.active {
     opacity: 1;

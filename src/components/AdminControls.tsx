@@ -179,20 +179,6 @@ export default function AdminControls() {
           </>
         )}
       </div>
-      
-      <style dangerouslySetInnerHTML={{__html: `
-        .btn-admin {
-          padding: 0.25rem 1rem;
-          font-size: 0.75rem;
-          text-transform: uppercase;
-          font-weight: 600;
-          letter-spacing: 0.05em;
-          border-radius: 0.25rem;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        .btn-admin:hover { opacity: 0.8; transform: translateY(-1px); }
-      `}} />
     </div>
   );
 }

@@ -229,6 +229,8 @@ export default function Home() {
               alt="Olympia Revolutionary Hero"
               className="w-full h-full object-cover opacity-70 hero-float"
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9Gyc3l7jg6NSLuHGgQ4HevxGLXN5aanHuUcHSMV4XjRuq8G1oLftXhRneaoaIHgGLDHF9ScnGXb_qpec5byDhYDCEQJBl6WSXTTqrRVAP0c8hyXpqyZCZSnKLsjF8GzZDOroqgZMUHnDdrAV0yNmQuuo9zfSTyAgqSXpM8P3d7amcAuba6RSGwsDU1VfqDM-Yz5FoWSV78fVhjI2xvu6slLUFsrEbM67FwN-8w7qmx2oz-tCcP19xLgDXFuBkvVp1rjdRaMrWg8c"
+              fetchPriority="high"
+              decoding="async"
             />
             {/* Gradient Overlay for text readability */}
             <div className="absolute inset-0 bg-background/50"></div>
