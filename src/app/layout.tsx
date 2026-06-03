@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SocketProvider } from "@/components/SocketProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -21,7 +22,11 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="bg-background text-on-background font-body-md overflow-x-hidden">{children}</body>
+      <body className="bg-background text-on-background font-body-md overflow-x-hidden">
+        <SocketProvider>
+          {children}
+        </SocketProvider>
+      </body>
     </html>
   );
 }

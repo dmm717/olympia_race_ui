@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -210,9 +211,11 @@ export default function Home() {
             <a className="font-label-caps text-label-caps text-on-surface-variant hover:text-secondary transition-all duration-300" href="#">Về đích</a>
             <a className="font-label-caps text-label-caps text-on-surface-variant hover:text-secondary transition-all duration-300" href="#">Bảng xếp hạng</a>
           </nav>
-          <button className="bg-primary-container text-on-primary-container px-6 py-3 font-label-caps text-label-caps hover:scale-95 transition-all duration-150 revolutionary-glow">
-            GIA NHẬP ĐỈNH CAO
-          </button>
+          <Link href="/game">
+            <button className="bg-primary-container text-on-primary-container px-6 py-3 font-label-caps text-label-caps hover:scale-95 transition-all duration-150 revolutionary-glow">
+              GIA NHẬP ĐỈNH CAO
+            </button>
+          </Link>
         </div>
       </header>
 
@@ -250,10 +253,12 @@ export default function Home() {
               className="flex flex-col md:flex-row gap-6 justify-center items-center opacity-0 w-full"
               style={{ animation: "fadeSlideUp 0.8s 0.8s forwards" }}
             >
-              <button className="min-h-[56px] px-10 bg-primary-container text-secondary font-label-caps text-label-caps hover:shadow-[0_0_40px_rgba(165,28,48,0.6)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 group w-full md:w-auto uppercase">
-                GIA NHẬP CUỘC ĐUA
-                <span className="material-symbols-outlined group-hover:rotate-12 transition-transform text-[20px]">bolt</span>
-              </button>
+              <Link href="/game" className="w-full md:w-auto">
+                <button className="min-h-[56px] px-10 bg-primary-container text-secondary font-label-caps text-label-caps hover:shadow-[0_0_40px_rgba(165,28,48,0.6)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 group w-full uppercase">
+                  GIA NHẬP CUỘC ĐUA
+                  <span className="material-symbols-outlined group-hover:rotate-12 transition-transform text-[20px]">bolt</span>
+                </button>
+              </Link>
               <button className="min-h-[56px] px-10 border-2 border-secondary text-secondary font-label-caps text-label-caps hover:bg-secondary/10 transition-all duration-300 w-full md:w-auto uppercase">
                 XEM LỊCH THI ĐẤU
               </button>
