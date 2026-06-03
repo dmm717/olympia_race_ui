@@ -2,10 +2,12 @@
 
 import { useSocket } from "./SocketProvider";
 import { useState } from "react";
+import AdminQuestionManager from "./AdminQuestionManager";
 
 export default function AdminControls() {
   const { socket, gameState } = useSocket();
   const [targetRound, setTargetRound] = useState("1");
+  const [isQuestionManagerOpen, setIsQuestionManagerOpen] = useState(false);
   const rs = gameState?.roundState;
 
   if (!socket || !gameState) return null;
@@ -18,6 +20,14 @@ export default function AdminControls() {
     if(confirm("Bạn có chắc muốn Reset điểm không?")) {
       socket.emit('admin_reset');
     }
+  };
+
+  const handleSetMode = (mode: 'manual' | 'auto') => {
+    socket.emit('admin_set_mode', { mode });
+  };
+
+  const handleTogglePause = () => {
+    socket.emit('admin_toggle_pause');
   };
 
   return (
@@ -51,7 +61,51 @@ export default function AdminControls() {
           >
             RESET TRẬN ĐẤU
           </button>
+          <button 
+            onClick={() => setIsQuestionManagerOpen(true)}
+            className="bg-primary/20 text-primary px-4 py-1 rounded font-label-caps text-xs border border-primary/50 hover:bg-primary hover:text-on-primary ml-4 flex items-center gap-1"
+          >
+            <span className="material-symbols-outlined text-sm">database</span>
+            QUẢN LÝ CÂU HỎI
+          </button>
         </div>
+      </div>
+
+      {/* Dual Mode Controls */}
+      <div className="flex items-center justify-between bg-surface p-3 rounded-lg border border-outline-variant/30 mb-2">
+        <div className="flex items-center gap-4">
+          <span className="font-label-caps text-sm text-on-surface-variant">Chế độ chơi:</span>
+          <div className="flex bg-surface-variant rounded-lg p-1">
+            <button 
+              onClick={() => handleSetMode('manual')}
+              className={`px-4 py-1 rounded text-sm font-bold transition-colors ${gameState.gameMode === 'manual' ? 'bg-primary text-on-primary shadow' : 'text-on-surface-variant hover:bg-surface'}`}
+            >
+              THỦ CÔNG (MC Chấm)
+            </button>
+            <button 
+              onClick={() => handleSetMode('auto')}
+              className={`px-4 py-1 rounded text-sm font-bold transition-colors ${gameState.gameMode === 'auto' ? 'bg-secondary text-on-secondary shadow' : 'text-on-surface-variant hover:bg-surface'}`}
+            >
+              TỰ ĐỘNG (Máy Chấm)
+            </button>
+          </div>
+        </div>
+
+        {gameState.gameMode === 'auto' && (
+          <button 
+            onClick={handleTogglePause}
+            className={`flex items-center gap-2 px-6 py-2 rounded-lg font-bold text-sm border-2 transition-all ${
+              rs?.isPaused 
+                ? 'bg-green-600/20 border-green-500 text-green-400 hover:bg-green-600 hover:text-white' 
+                : 'bg-error/20 border-error text-error hover:bg-error hover:text-white'
+            }`}
+          >
+            <span className="material-symbols-outlined">
+              {rs?.isPaused ? 'play_arrow' : 'pause'}
+            </span>
+            {rs?.isPaused ? 'TIẾP TỤC TRẬN ĐẤU' : 'TẠM DỪNG TRẬN ĐẤU'}
+          </button>
+        )}
       </div>
 
       {/* Dynamic Controls based on Round */}
@@ -59,24 +113,28 @@ export default function AdminControls() {
         {gameState.round === 1 && (
           <>
             <button onClick={() => socket.emit('admin_start_common_r1')} className="btn-admin bg-primary-container text-on-primary-container">
-              Bắt đầu Khởi động chung
+              Bắt đầu Khởi động {gameState.gameMode === 'auto' ? '(Tự Động)' : 'chung'}
             </button>
-            <button onClick={() => socket.emit('admin_allow_bell')} className="btn-admin bg-surface-variant text-on-surface-variant">
-              MỞ KHÓA CHUÔNG
-            </button>
-            <div className="flex-1"></div>
-            {rs?.buzzedPlayer ? (
-              <div className="flex items-center gap-4 bg-primary/10 p-2 rounded border border-primary/30">
-                <span className="font-bold text-primary">{rs.buzzedPlayer} đang trả lời!</span>
-                <button onClick={() => socket.emit('admin_judge', { correct: true })} className="bg-green-600/20 text-green-400 border border-green-600 px-4 py-1 rounded hover:bg-green-600 hover:text-white transition-colors">
-                  ĐÚNG (+10)
+            {gameState.gameMode === 'manual' && (
+              <>
+                <button onClick={() => socket.emit('admin_allow_bell')} className="btn-admin bg-surface-variant text-on-surface-variant">
+                  MỞ KHÓA CHUÔNG
                 </button>
-                <button onClick={() => socket.emit('admin_judge', { correct: false })} className="bg-red-600/20 text-red-400 border border-red-600 px-4 py-1 rounded hover:bg-red-600 hover:text-white transition-colors">
-                  SAI (-5)
-                </button>
-              </div>
-            ) : (
-              <span className="text-on-surface-variant text-sm italic">Chưa ai bấm chuông...</span>
+                <div className="flex-1"></div>
+                {rs?.buzzedPlayer ? (
+                  <div className="flex items-center gap-4 bg-primary/10 p-2 rounded border border-primary/30">
+                    <span className="font-bold text-primary">{rs.buzzedPlayer} đang trả lời!</span>
+                    <button onClick={() => socket.emit('admin_judge', { correct: true })} className="bg-green-600/20 text-green-400 border border-green-600 px-4 py-1 rounded hover:bg-green-600 hover:text-white transition-colors">
+                      ĐÚNG (+10)
+                    </button>
+                    <button onClick={() => socket.emit('admin_judge', { correct: false })} className="bg-red-600/20 text-red-400 border border-red-600 px-4 py-1 rounded hover:bg-red-600 hover:text-white transition-colors">
+                      SAI (-5)
+                    </button>
+                  </div>
+                ) : (
+                  <span className="text-on-surface-variant text-sm italic">Chưa ai bấm chuông...</span>
+                )}
+              </>
             )}
           </>
         )}
@@ -84,31 +142,35 @@ export default function AdminControls() {
         {gameState.round === 2 && (
           <>
             <button onClick={() => socket.emit('admin_start_round2')} className="btn-admin bg-primary-container text-on-primary-container">
-              Bắt đầu Vòng 2
+              Bắt đầu Vòng 2 {gameState.gameMode === 'auto' ? '(Tự Động)' : ''}
             </button>
-            <div className="flex gap-2">
-              {[1, 2, 3, 4].map(row => (
-                <button 
-                  key={row}
-                  onClick={() => socket.emit('admin_open_row', { rowId: row })} 
-                  className={`btn-admin ${rs?.openedRows?.includes(row) ? 'bg-secondary text-on-secondary' : 'bg-surface-variant'}`}
-                >
-                  Mở Hàng {row}
-                </button>
-              ))}
-            </div>
-            <div className="flex-1"></div>
-            {rs?.obstacleBuzzedPlayer ? (
-              <div className="flex items-center gap-4 bg-error/20 p-2 rounded border border-error/50">
-                <span className="font-bold text-error">⚠️ {rs.obstacleBuzzedPlayer} TRẢ LỜI CHƯỚNG NGẠI VẬT!</span>
-                <button onClick={() => socket.emit('admin_judge_obstacle', { correct: true })} className="bg-green-600/20 text-green-400 border border-green-600 px-4 py-1 rounded hover:bg-green-600 hover:text-white">
-                  ĐÚNG CNV
-                </button>
-                <button onClick={() => socket.emit('admin_judge_obstacle', { correct: false })} className="bg-red-600/20 text-red-400 border border-red-600 px-4 py-1 rounded hover:bg-red-600 hover:text-white">
-                  SAI CNV (LOẠI)
-                </button>
-              </div>
-            ) : null}
+            {gameState.gameMode === 'manual' && (
+              <>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4].map(row => (
+                    <button 
+                      key={row}
+                      onClick={() => socket.emit('admin_open_row', { rowId: row })} 
+                      className={`btn-admin ${rs?.openedRows?.includes(row) ? 'bg-secondary text-on-secondary' : 'bg-surface-variant'}`}
+                    >
+                      Mở Hàng {row}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex-1"></div>
+                {rs?.obstacleBuzzedPlayer ? (
+                  <div className="flex items-center gap-4 bg-error/20 p-2 rounded border border-error/50">
+                    <span className="font-bold text-error">⚠️ {rs.obstacleBuzzedPlayer} TRẢ LỜI CHƯỚNG NGẠI VẬT!</span>
+                    <button onClick={() => socket.emit('admin_judge_obstacle', { correct: true })} className="bg-green-600/20 text-green-400 border border-green-600 px-4 py-1 rounded hover:bg-green-600 hover:text-white">
+                      ĐÚNG CNV
+                    </button>
+                    <button onClick={() => socket.emit('admin_judge_obstacle', { correct: false })} className="bg-red-600/20 text-red-400 border border-red-600 px-4 py-1 rounded hover:bg-red-600 hover:text-white">
+                      SAI CNV (LOẠI)
+                    </button>
+                  </div>
+                ) : null}
+              </>
+            )}
           </>
         )}
 
@@ -179,6 +241,11 @@ export default function AdminControls() {
           </>
         )}
       </div>
+
+      {/* Question Manager Modal */}
+      {isQuestionManagerOpen && (
+        <AdminQuestionManager onClose={() => setIsQuestionManagerOpen(false)} />
+      )}
     </div>
   );
 }

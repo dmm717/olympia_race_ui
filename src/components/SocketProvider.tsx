@@ -4,6 +4,8 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { io, Socket } from 'socket.io-client';
 
 export interface RoundState {
+  isPaused?: boolean;
+  questionIndex?: number;
   buzzedPlayer?: string | null;
   bellLocked?: boolean;
   openedRows?: number[];
@@ -17,8 +19,10 @@ export interface RoundState {
 }
 
 export interface GameState {
+  gameMode?: 'manual' | 'auto';
   round: number;
   status: string;
+  currentQuestion?: any;
   players: { username: string; score: number }[];
   roundState: RoundState;
 }
@@ -29,8 +33,11 @@ interface SocketContextType {
   isConnected: boolean;
   username: string;
   role: string;
+  questions: any;
   connect: (username: string, role: string) => void;
   disconnect: () => void;
+  fetchQuestions: () => void;
+  saveQuestions: (newQuestions: any) => void;
 }
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -38,10 +45,23 @@ const SocketContext = createContext<SocketContextType | undefined>(undefined);
 export function SocketProvider({ children }: { children: ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [gameState, setGameState] = useState<GameState | null>(null);
+  const [questions, setQuestions] = useState<any>(null);
   const [isConnected, setIsConnected] = useState(false);
   
   const [username, setUsername] = useState('');
   const [role, setRole] = useState('');
+
+  const fetchQuestions = () => {
+    if (socket && role === 'admin') {
+      socket.emit('admin_get_questions');
+    }
+  };
+
+  const saveQuestions = (newQuestions: any) => {
+    if (socket && role === 'admin') {
+      socket.emit('admin_save_questions', { questions: newQuestions });
+    }
+  };
 
   const connect = (newUsername: string, newRole: string) => {
     setUsername(newUsername);
@@ -50,7 +70,6 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
     const newSocket = io(backendUrl, {
       query: { username: newUsername, role: newRole },
-      transports: ['websocket'],
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
@@ -82,6 +101,11 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       setGameState(state);
     });
 
+    newSocket.on('sync_questions', (data: any) => {
+      console.log('Received new questions:', data);
+      setQuestions(data);
+    });
+
     setSocket(newSocket);
   };
 
@@ -103,7 +127,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   }, [socket]);
 
   return (
-    <SocketContext.Provider value={{ socket, gameState, isConnected, username, role, connect, disconnect }}>
+    <SocketContext.Provider value={{ socket, gameState, questions, isConnected, username, role, connect, disconnect, fetchQuestions, saveQuestions }}>
       {children}
     </SocketContext.Provider>
   );
