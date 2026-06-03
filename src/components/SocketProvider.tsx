@@ -47,8 +47,13 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     setUsername(newUsername);
     setRole(newRole);
 
-    const newSocket = io('http://localhost:3001', {
-      query: { username: newUsername, role: newRole }
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+    const newSocket = io(backendUrl, {
+      query: { username: newUsername, role: newRole },
+      transports: ['websocket'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
     newSocket.on('connect', () => {
@@ -59,6 +64,17 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     newSocket.on('disconnect', () => {
       setIsConnected(false);
       console.log('Disconnected from Game Server');
+    });
+
+    newSocket.on('connect_error', (err) => {
+      console.error('Socket Connection Error:', err.message);
+      setIsConnected(false);
+      alert('Không thể kết nối đến máy chủ. Đang thử lại...');
+    });
+
+    newSocket.on('auth_error', (msg: string) => {
+      alert(msg);
+      newSocket.disconnect();
     });
 
     newSocket.on('sync_state', (state: GameState) => {
