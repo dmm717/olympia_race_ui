@@ -2,6 +2,7 @@
 
 import { useSocket } from "../SocketProvider";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 
 export default function Round2View() {
   const { socket, gameState, username, role } = useSocket();
@@ -9,11 +10,29 @@ export default function Round2View() {
 
   if (!rs) return null;
 
+  const isEliminated = rs.eliminatedPlayers?.includes(username);
+
   const handleBuzzObstacle = () => {
-    socket?.emit('ring_bell_obstacle');
+    if (!rs.obstacleBuzzedPlayer && !isEliminated) {
+      socket?.emit('ring_bell_obstacle');
+    }
   };
 
-  const isEliminated = rs.eliminatedPlayers?.includes(username);
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        handleBuzzObstacle();
+      }
+    };
+
+    if (role === 'user' && !rs.obstacleBuzzedPlayer && !isEliminated) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [role, rs?.obstacleBuzzedPlayer, isEliminated]);
 
   const handleRowClick = (rowId: number) => {
     if (role === 'admin') {
@@ -43,7 +62,7 @@ export default function Round2View() {
     return `absolute w-1/2 h-1/2 bg-surface-container-high border-background flex items-center justify-center font-display-lg text-4xl text-on-surface-variant transition-all duration-1000 ease-in-out ${positionClass} ${isOpened ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`;
   };
 
-  const isObstacleRevealed = !!(rs.bellLocked && rs.obstacleBuzzedPlayer);
+  const isObstacleRevealed = !!rs.obstacleBuzzedPlayer;
 
   return (
     <div className="flex flex-col md:flex-row flex-1 w-full h-full p-4 gap-6 relative overflow-hidden">
