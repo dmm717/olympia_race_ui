@@ -69,7 +69,7 @@ export default function Round2View() {
     <div className="flex flex-col md:flex-row flex-1 w-full h-full p-4 gap-6 relative overflow-hidden">
       
       {/* LEFT COLUMN: IMAGE PUZZLE */}
-      <div className="flex-1 relative bg-black/40 rounded-xl overflow-hidden shadow-2xl min-h-[300px]">
+      <div className="flex-1 w-full relative bg-black/40 rounded-xl overflow-hidden shadow-2xl self-start aspect-[4/3]">
         {/* The hidden image */}
         <div 
           className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
