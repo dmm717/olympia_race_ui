@@ -161,7 +161,17 @@ export default function AdminControls() {
                 <span className="text-secondary font-label-caps mb-2 block">CÂU HỎI SỐ {(rs?.questionIndex || 0) + 1}</span>
                 <p className="font-headline-lg text-lg mb-2">{gameState.currentQuestion.text}</p>
                 <div className="bg-green-600/10 border border-green-600/30 p-2 rounded text-green-700 dark:text-green-400 font-bold">
-                  ĐÁP ÁN: {gameState.currentQuestion.answer}
+                  ĐÁP ÁN: {(() => {
+                    const ans = gameState.currentQuestion.answer;
+                    const opts = gameState.currentQuestion.options;
+                    if (opts && opts.length > 0) {
+                      const idx = opts.indexOf(ans);
+                      if (idx >= 0) {
+                        return `${String.fromCharCode(65 + idx)}: ${ans}`;
+                      }
+                    }
+                    return ans;
+                  })()}
                 </div>
               </div>
             )}
