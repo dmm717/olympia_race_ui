@@ -69,6 +69,10 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   const connect = (newUsername: string, newRole: string) => {
     setUsername(newUsername);
     setRole(newRole);
+    
+    // Lưu vào localStorage để chống mất đăng nhập khi reload
+    localStorage.setItem('olympia_username', newUsername);
+    localStorage.setItem('olympia_role', newRole);
 
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
     const newSocket = io(backendUrl, {
@@ -184,15 +188,26 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     setSocket(null);
     setIsConnected(false);
     setGameState(null);
+    setUsername('');
+    setRole('');
+    localStorage.removeItem('olympia_username');
+    localStorage.removeItem('olympia_role');
   };
 
   useEffect(() => {
+    // Tự động khôi phục đăng nhập khi reload trang
+    const savedUser = localStorage.getItem('olympia_username');
+    const savedRole = localStorage.getItem('olympia_role');
+    if (savedUser && savedRole && !socket) {
+      connect(savedUser, savedRole);
+    }
+
     return () => {
       if (socket) {
         socket.disconnect();
       }
     };
-  }, [socket]);
+  }, []); // Chỉ chạy 1 lần khi mount
 
   return (
     <SocketContext.Provider value={{ socket, gameState, questions, isConnected, username, role, connect, disconnect, fetchQuestions, saveQuestions }}>

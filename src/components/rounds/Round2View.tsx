@@ -73,7 +73,7 @@ export default function Round2View() {
       </div>
 
       {/* RIGHT COLUMN: ROWS & QUESTIONS */}
-      <div className="w-full md:w-[45%] flex flex-col gap-4">
+      <div className="w-full md:w-1/2 lg:w-2/5 flex flex-col gap-4 overflow-y-auto hide-scrollbar pl-2">
         
         <div className="bg-primary/20 border-l-4 border-primary px-6 py-4 rounded-r-xl flex justify-between items-center shadow-md">
            <h3 className="font-headline-lg text-xl md:text-2xl text-primary tracking-wider">
@@ -91,7 +91,7 @@ export default function Round2View() {
 
              return (
                <div key={rowId} className="flex items-center gap-3 w-full">
-                 <div className="flex-1 flex gap-2 justify-start items-center p-3 bg-surface-variant/20 rounded-xl border border-outline-variant/30 overflow-x-auto h-[70px]">
+                 <div className="flex-1 flex gap-2 justify-start items-center p-3 bg-surface-variant/20 rounded-xl border border-outline-variant/30 overflow-x-auto hide-scrollbar h-[70px]">
                    {Array.from({length}).map((_, idx) => (
                      <div 
                         key={idx} 
