@@ -74,8 +74,11 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     const newSocket = io(backendUrl, {
       query: { username: newUsername, role: newRole },
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 20000,
+      transports: ['websocket', 'polling']
     });
 
     newSocket.on('connect', () => {
