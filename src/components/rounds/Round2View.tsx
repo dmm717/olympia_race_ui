@@ -4,7 +4,7 @@ import { useSocket } from "../SocketProvider";
 import { motion } from "framer-motion";
 
 export default function Round2View() {
-  const { socket, gameState, username, role, questions } = useSocket();
+  const { socket, gameState, username, role } = useSocket();
   const rs = gameState?.roundState;
 
   if (!rs) return null;
@@ -44,11 +44,11 @@ export default function Round2View() {
         {/* The hidden image */}
         <div 
           className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
-          style={{ backgroundImage: `url(${questions?.round2?.imageUrl})` }}
+          style={{ backgroundImage: `url(${gameState.questions?.round2?.imageUrl})` }}
         />
         
         {/* 4 Corner Pieces */}
-        {questions?.round2?.rows?.map((r: any) => (
+        {gameState.questions?.round2?.rows?.map((r: any) => (
           <div key={r.rowId} className={getPieceStyle(r.rowId, !!rs.openedRows?.includes(r.rowId) || isObstacleRevealed)}>
             {r.rowId}
           </div>
@@ -66,13 +66,13 @@ export default function Round2View() {
         
         <div className="bg-primary/20 border-l-4 border-primary px-6 py-4 rounded-r-xl flex justify-between items-center shadow-md">
            <h3 className="font-headline-lg text-xl md:text-2xl text-primary tracking-wider">
-             CHƯỚNG NGẠI VẬT CÓ {questions?.round2?.keyword?.length || 0} CHỮ CÁI
+             CHƯỚNG NGẠI VẬT CÓ {gameState.questions?.round2?.keyword?.length || 0} CHỮ CÁI
            </h3>
         </div>
 
         {/* The rows */}
         <div className="flex flex-col gap-3 flex-1 max-h-[40vh] overflow-y-auto pr-2">
-          {questions?.round2?.rows?.map((rowData: any) => {
+          {gameState.questions?.round2?.rows?.map((rowData: any) => {
              const rowId = rowData.rowId;
              const length = rowData.length || 0;
              const isOpened = rs.openedRows?.includes(rowId);

@@ -27,6 +27,7 @@ export interface GameState {
   currentQuestion?: any;
   players: { username: string; score: number }[];
   roundState: RoundState;
+  questions?: any;
 }
 
 interface SocketContextType {
