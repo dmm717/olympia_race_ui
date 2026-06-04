@@ -22,7 +22,7 @@ export default function Round2View() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
         e.preventDefault();
-        handleBuzzObstacle();
+        socket?.emit('ring_bell_obstacle');
       }
     };
 
@@ -32,7 +32,7 @@ export default function Round2View() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [role, rs?.obstacleBuzzedPlayer, isEliminated]);
+  }, [role, rs?.obstacleBuzzedPlayer, isEliminated, socket]);
 
   const handleRowClick = (rowId: number) => {
     if (role === 'admin') {
