@@ -118,6 +118,58 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       setQuestions(data);
     });
 
+    newSocket.on('bell_buzzed', (data: { username: string }) => {
+      try {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioCtx) {
+          const ctx = new AudioCtx();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(600, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
+          
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          
+          osc.start();
+          osc.stop(ctx.currentTime + 0.3);
+        }
+      } catch(e) {
+        console.error('Audio play error:', e);
+      }
+    });
+
+    newSocket.on('obstacle_buzzed', (data: { username: string }) => {
+      try {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioCtx) {
+          const ctx = new AudioCtx();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(400, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.15);
+          
+          gain.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+          
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          
+          osc.start();
+          osc.stop(ctx.currentTime + 0.5);
+        }
+      } catch(e) {
+        console.error('Audio play error:', e);
+      }
+    });
+
     setSocket(newSocket);
   };
 
