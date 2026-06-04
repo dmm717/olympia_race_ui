@@ -4,7 +4,7 @@ import { useSocket } from "../SocketProvider";
 import { motion } from "framer-motion";
 
 export default function Round2View() {
-  const { socket, gameState, username, role } = useSocket();
+  const { socket, gameState, username, role, questions } = useSocket();
   const rs = gameState?.roundState;
 
   if (!rs) return null;
@@ -15,82 +15,120 @@ export default function Round2View() {
 
   const isEliminated = rs.eliminatedPlayers?.includes(username);
 
+  const handleRowClick = (rowId: number) => {
+    if (role === 'admin') {
+      socket?.emit('admin_open_row', { rowId });
+    }
+  };
+
+  const getPieceStyle = (id: number, isOpened: boolean) => {
+    let positionClass = "";
+    switch (id) {
+      case 1: positionClass = "top-0 left-0 border-r-2 border-b-2"; break;
+      case 2: positionClass = "top-0 right-0 border-l-2 border-b-2"; break;
+      case 3: positionClass = "bottom-0 right-0 border-l-2 border-t-2"; break;
+      case 4: positionClass = "bottom-0 left-0 border-r-2 border-t-2"; break;
+      case 5: positionClass = "top-[25%] left-[25%] w-[50%] h-[50%] border-4 shadow-2xl z-10"; break; // Center
+    }
+
+    return `absolute w-1/2 h-1/2 bg-surface-container-high border-background flex items-center justify-center font-display-lg text-4xl text-on-surface-variant transition-all duration-1000 ease-in-out ${positionClass} ${isOpened ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`;
+  };
+
+  const isObstacleRevealed = !!(rs.bellLocked && rs.obstacleBuzzedPlayer);
+
   return (
-    <div className="flex flex-col items-center justify-start flex-1 w-full h-full relative p-4">
-      <h3 className="font-headline-xl text-3xl uppercase mb-8 z-10 text-primary">VƯỢT CHƯỚNG NGẠI VẬT</h3>
+    <div className="flex flex-col md:flex-row flex-1 w-full h-full p-4 gap-6 relative overflow-hidden">
       
-      {/* Cảnh báo có người bấm chướng ngại vật */}
-      {rs.obstacleBuzzedPlayer && (
-        <motion.div 
-          initial={{ y: -20, opacity: 0 }} 
-          animate={{ y: 0, opacity: 1 }}
-          className="bg-error text-on-error px-8 py-4 rounded-xl font-headline-lg text-xl z-20 mb-8 w-full max-w-2xl text-center shadow-[0_0_30px_rgba(255,180,171,0.5)] border-2 border-white"
-        >
-          <span className="material-symbols-outlined animate-ping mr-3">warning</span>
-          TÍN HIỆU TỪ: {rs.obstacleBuzzedPlayer}
-        </motion.div>
-      )}
+      {/* LEFT COLUMN: IMAGE PUZZLE */}
+      <div className="flex-1 relative bg-black/40 rounded-xl overflow-hidden shadow-2xl min-h-[300px]">
+        {/* The hidden image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
+          style={{ backgroundImage: `url(${questions?.round2?.imageUrl})` }}
+        />
+        
+        {/* 4 Corner Pieces */}
+        {questions?.round2?.rows?.map((r: any) => (
+          <div key={r.rowId} className={getPieceStyle(r.rowId, !!rs.openedRows?.includes(r.rowId) || isObstacleRevealed)}>
+            {r.rowId}
+          </div>
+        ))}
 
-      {/* Ma trận hàng ngang */}
-      <div className="w-full max-w-2xl flex flex-col gap-4 z-10 flex-1">
-        {[1, 2, 3, 4].map((row) => {
-          const isOpened = rs.openedRows?.includes(row);
-          return (
-            <motion.div 
-              key={row}
-              layout
-              className={`h-16 flex items-center px-6 border border-outline-variant/50 rounded-lg transition-all duration-500
-                ${isOpened ? 'bg-secondary/20 border-secondary/50 shadow-[0_0_15px_rgba(233,193,118,0.2)]' : 'glass-card'}`}
-            >
-              <div className="w-10 font-headline-lg text-xl text-on-surface-variant">
-                #{row}
-              </div>
-              <div className="flex-1 flex justify-center">
-                {isOpened ? (
-                  <span className="text-secondary font-label-caps text-lg tracking-widest">ĐÃ MỞ HÀNG NGANG</span>
-                ) : (
-                  <span className="text-on-surface-variant/30 font-label-caps">ĐANG ẨN</span>
-                )}
-              </div>
-            </motion.div>
-          );
-        })}
+        {/* Center Piece */}
+        <div className={getPieceStyle(5, isObstacleRevealed)}>
+          {/* Logo or placeholder for center */}
+          <span className="material-symbols-outlined text-6xl text-primary/50">token</span>
+        </div>
+      </div>
 
-        {/* Chướng ngại vật (Từ khóa trung tâm) */}
-        <motion.div 
-          layout
-          className="mt-4 h-24 flex items-center justify-center px-6 bg-surface-container-highest border-2 border-primary/30 rounded-lg shadow-[0_0_20px_rgba(165,28,48,0.2)]"
-        >
-           <span className="text-primary font-headline-lg text-2xl tracking-[0.2em] uppercase">CHƯỚNG NGẠI VẬT</span>
-        </motion.div>
+      {/* RIGHT COLUMN: ROWS & QUESTIONS */}
+      <div className="w-full md:w-[45%] flex flex-col gap-4">
+        
+        <div className="bg-primary/20 border-l-4 border-primary px-6 py-4 rounded-r-xl flex justify-between items-center shadow-md">
+           <h3 className="font-headline-lg text-xl md:text-2xl text-primary tracking-wider">
+             CHƯỚNG NGẠI VẬT CÓ {questions?.round2?.keyword?.length || 0} CHỮ CÁI
+           </h3>
+        </div>
 
-        {/* Hiển thị câu hỏi của hàng ngang */}
+        {/* The rows */}
+        <div className="flex flex-col gap-3 flex-1 max-h-[40vh] overflow-y-auto pr-2">
+          {questions?.round2?.rows?.map((rowData: any) => {
+             const rowId = rowData.rowId;
+             const length = rowData.length || 0;
+             const isOpened = rs.openedRows?.includes(rowId);
+             const answer = rowData.answer || "";
+
+             return (
+               <div key={rowId} className="flex items-center gap-3 w-full">
+                 <div className="flex-1 flex gap-2 justify-start items-center p-3 bg-surface-variant/20 rounded-xl border border-outline-variant/30 overflow-x-auto h-[70px]">
+                   {Array.from({length}).map((_, idx) => (
+                     <div 
+                        key={idx} 
+                        className={`w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-xl shadow-[inset_0_-2px_5px_rgba(0,0,0,0.5),0_2px_4px_rgba(0,0,0,0.3)] transition-colors duration-500
+                        ${isOpened ? 'bg-secondary text-background' : 'bg-primary/80 border border-primary-container text-transparent'}`}
+                     >
+                        {isOpened ? answer[idx] : ''}
+                     </div>
+                   ))}
+                 </div>
+                 
+                 <button 
+                    onClick={() => handleRowClick(rowId)}
+                    className={`w-14 h-14 flex-shrink-0 flex items-center justify-center rounded-xl font-headline-lg text-2xl shadow-lg border-2 transition-all 
+                    ${isOpened ? 'bg-secondary/20 text-secondary border-secondary/50' : 'bg-surface-container-high text-on-surface hover:bg-primary/20 hover:border-primary'} 
+                    ${role === 'admin' ? 'cursor-pointer hover:scale-105 active:scale-95' : 'cursor-default'}`}
+                 >
+                   {rowId}
+                 </button>
+               </div>
+             );
+          })}
+        </div>
+        
+        {/* Giao diện Câu hỏi bên dưới */}
         {gameState.currentQuestion && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass-card w-full mt-8 p-6 rounded-2xl border border-primary/50 text-center shadow-[0_0_20px_rgba(165,28,48,0.2)] flex flex-col items-center"
+            className="bg-surface-container p-6 rounded-2xl border border-primary/40 shadow-xl flex flex-col items-center mt-2"
           >
-            <h2 className="text-2xl font-headline-lg text-on-surface leading-relaxed">
+            <h4 className="text-lg font-headline-lg text-on-surface text-center leading-snug mb-4">
               {gameState.currentQuestion.text}
-            </h2>
+            </h4>
 
-            {/* Rendering Options (A, B, C, D) */}
             {gameState.currentQuestion.options && gameState.currentQuestion.options.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 w-full">
+              <div className="grid grid-cols-2 gap-3 w-full">
                 {gameState.currentQuestion.options.map((opt: string, idx: number) => {
                   const label = String.fromCharCode(65 + idx);
                   return (
                     <div
                       key={idx}
-                      className="relative p-3 rounded-xl border border-outline-variant text-left font-bold transition-all bg-surface-variant text-on-surface"
+                      className="p-3 rounded-lg border border-outline-variant/50 text-left font-bold bg-surface-variant text-on-surface text-sm flex items-center gap-2"
                     >
-                      <div className="flex items-center gap-3">
-                        <span className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-black bg-outline-variant text-on-surface-variant">
-                          {label}
-                        </span>
-                        <span className="text-lg">{opt}</span>
-                      </div>
+                      <span className="w-6 h-6 rounded flex-shrink-0 flex items-center justify-center text-xs bg-background text-on-surface-variant">
+                        {label}
+                      </span>
+                      <span className="truncate">{opt}</span>
                     </div>
                   );
                 })}
@@ -98,26 +136,39 @@ export default function Round2View() {
             )}
           </motion.div>
         )}
-      </div>
 
-      {/* Nút bấm chuông chướng ngại vật (Góc dưới cùng) */}
-      {role === 'user' && !rs.obstacleBuzzedPlayer && (
-        <div className="mt-8 z-10 w-full max-w-2xl">
-          {isEliminated ? (
-            <div className="w-full bg-surface-variant text-on-surface-variant py-4 text-center rounded-xl font-label-caps">
-              BẠN ĐÃ BỊ LOẠI KHỎI VÒNG NÀY
-            </div>
-          ) : (
-            <button
-              onClick={handleBuzzObstacle}
-              className="w-full bg-error text-on-error py-4 rounded-xl font-headline-lg text-xl tracking-wider hover:bg-error/90 hover:scale-[1.02] transition-all duration-200 shadow-[0_10px_20px_rgba(255,180,171,0.2)] border-b-4 border-error-container active:scale-95 active:border-b-0"
-            >
-              <span className="material-symbols-outlined mr-2 align-bottom">gavel</span>
-              TRẢ LỜI CHƯỚNG NGẠI VẬT
-            </button>
-          )}
-        </div>
-      )}
+        {/* Nút bấm chuông chướng ngại vật (User Only) */}
+        {role === 'user' && !rs.obstacleBuzzedPlayer && (
+          <div className="mt-4 z-10 w-full">
+            {isEliminated ? (
+              <div className="w-full bg-surface-variant text-on-surface-variant py-4 text-center rounded-xl font-label-caps border border-outline-variant/50">
+                BẠN ĐÃ BỊ LOẠI KHỎI VÒNG NÀY
+              </div>
+            ) : (
+              <button
+                onClick={handleBuzzObstacle}
+                className="w-full bg-error text-on-error py-4 rounded-xl font-headline-lg text-xl tracking-wider hover:bg-error/90 hover:scale-[1.02] transition-all duration-200 shadow-[0_5px_15px_rgba(255,180,171,0.2)] border-b-4 border-error-container active:scale-95 active:border-b-0 flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined align-bottom">gavel</span>
+                TRẢ LỜI CHƯỚNG NGẠI VẬT
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Cảnh báo có người bấm chướng ngại vật */}
+        {rs.obstacleBuzzedPlayer && (
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }} 
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-error text-on-error px-4 py-4 rounded-xl font-headline-lg text-lg text-center shadow-[0_0_20px_rgba(255,180,171,0.5)] border-2 border-white mt-4 flex justify-center items-center gap-2"
+          >
+            <span className="material-symbols-outlined animate-ping">warning</span>
+            TÍN HIỆU TỪ: {rs.obstacleBuzzedPlayer}
+          </motion.div>
+        )}
+
+      </div>
     </div>
   );
 }

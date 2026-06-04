@@ -285,17 +285,6 @@ export default function AdminControls() {
             </button>
             {gameState.gameMode === 'manual' && (
               <>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4].map(row => (
-                    <button 
-                      key={row}
-                      onClick={() => socket.emit('admin_open_row', { rowId: row })} 
-                      className={`btn-admin ${rs?.openedRows?.includes(row) ? 'bg-secondary text-on-secondary' : 'bg-surface-variant'}`}
-                    >
-                      Mở Hàng {row}
-                    </button>
-                  ))}
-                </div>
                 <div className="flex-1"></div>
                 {rs?.obstacleBuzzedPlayer ? (
                   <div className="flex items-center gap-4 bg-error/20 p-2 rounded border border-error/50">
