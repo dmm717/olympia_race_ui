@@ -17,7 +17,16 @@ export default function Round2View() {
 
   const handleRowClick = (rowId: number) => {
     if (role === 'admin') {
-      socket?.emit('admin_open_row', { rowId });
+      const isSelected = gameState.currentQuestion?.rowId === rowId;
+      const isOpened = rs.openedRows?.includes(rowId);
+      
+      if (isOpened) return; // Đã lật thì không làm gì cả
+      
+      if (!isSelected) {
+        socket?.emit('admin_select_row', { rowId });
+      } else {
+        socket?.emit('admin_open_row', { rowId });
+      }
     }
   };
 
@@ -54,11 +63,13 @@ export default function Round2View() {
           </div>
         ))}
 
-        {/* Center Piece */}
-        <div className={getPieceStyle(5, isObstacleRevealed)}>
-          {/* Logo or placeholder for center */}
-          <span className="material-symbols-outlined text-6xl text-primary/50">token</span>
-        </div>
+        {/* Center Piece (Fallback if not provided in questions as rowId=5) */}
+        {!gameState.questions?.round2?.rows?.some((r: any) => r.rowId === 5) && (
+          <div className={getPieceStyle(5, isObstacleRevealed)}>
+            {/* Logo or placeholder for center */}
+            <span className="material-symbols-outlined text-6xl text-primary/50">token</span>
+          </div>
+        )}
       </div>
 
       {/* RIGHT COLUMN: ROWS & QUESTIONS */}
@@ -94,11 +105,16 @@ export default function Round2View() {
                  
                  <button 
                     onClick={() => handleRowClick(rowId)}
-                    className={`w-14 h-14 flex-shrink-0 flex items-center justify-center rounded-xl font-headline-lg text-2xl shadow-lg border-2 transition-all 
-                    ${isOpened ? 'bg-secondary/20 text-secondary border-secondary/50' : 'bg-surface-container-high text-on-surface hover:bg-primary/20 hover:border-primary'} 
-                    ${role === 'admin' ? 'cursor-pointer hover:scale-105 active:scale-95' : 'cursor-default'}`}
+                    disabled={isOpened && role === 'admin'}
+                    className={`w-14 h-14 flex-shrink-0 flex items-center justify-center rounded-xl font-headline-lg shadow-lg border-2 transition-all 
+                    ${isOpened ? 'bg-secondary/20 text-secondary border-secondary/50 opacity-50 cursor-not-allowed' : 'bg-surface-container-high text-on-surface hover:bg-primary/20 hover:border-primary'} 
+                    ${role === 'admin' && !isOpened ? 'cursor-pointer hover:scale-105 active:scale-95' : (!isOpened ? 'cursor-default' : '')}`}
                  >
-                   {rowId}
+                   {role === 'admin' && gameState.currentQuestion?.rowId === rowId && !isOpened ? (
+                     <span className="text-sm font-bold text-primary animate-pulse">LẬT</span>
+                   ) : (
+                     <span className="text-2xl">{rowId}</span>
+                   )}
                  </button>
                </div>
              );
