@@ -303,6 +303,15 @@ export default function AdminControls() {
                   </button>
                 </div>
 
+                {rs?.buzzedPlayer && !rs?.obstacleBuzzedPlayer && (
+                  <div className="flex items-center gap-4 bg-primary/20 p-2 rounded border border-primary/50 mb-2">
+                    <span className="font-bold text-primary">🔔 {rs.buzzedPlayer} TRẢ LỜI HÀNG NGANG!</span>
+                    <button onClick={() => socket.emit('admin_clear_buzzer_r2')} className="bg-red-600/20 text-red-400 border border-red-600 px-4 py-1 rounded hover:bg-red-600 hover:text-white">
+                      HUỶ TÍN HIỆU
+                    </button>
+                  </div>
+                )}
+
                 {rs?.obstacleBuzzedPlayer ? (
                   <div className="flex items-center gap-4 bg-error/20 p-2 rounded border border-error/50">
                     <span className="font-bold text-error">⚠️ {rs.obstacleBuzzedPlayer} TRẢ LỜI CHƯỚNG NGẠI VẬT!</span>
