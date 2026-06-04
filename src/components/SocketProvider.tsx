@@ -5,6 +5,7 @@ import { io, Socket } from 'socket.io-client';
 import toast from 'react-hot-toast';
 
 export interface RoundState {
+  part?: 'personal' | 'common';
   isPaused?: boolean;
   questionIndex?: number;
   buzzedPlayer?: string | null;

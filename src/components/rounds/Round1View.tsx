@@ -62,73 +62,100 @@ export default function Round1View() {
       )}
 
       {/* Hiển thị câu hỏi (Chỉ Auto Mode) */}
-      {isAutoMode && gameState.currentQuestion && (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass-card w-full max-w-4xl p-8 rounded-2xl border-2 border-primary/50 text-center mb-12 shadow-[0_0_30px_rgba(165,28,48,0.2)]"
-        >
-          <span className="text-secondary font-label-caps mb-4 block">CÂU HỎI SỐ {(rs.questionIndex || 0) + 1}</span>
-          <h2 className="text-3xl md:text-4xl font-headline-lg text-on-surface leading-relaxed">
-            {gameState.currentQuestion.text}
-          </h2>
-        </motion.div>
+      {isAutoMode && (
+        gameState.currentQuestion ? (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass-card w-full max-w-4xl p-8 rounded-2xl border-2 border-primary/50 text-center mb-12 shadow-[0_0_30px_rgba(165,28,48,0.2)]"
+          >
+            <span className="text-secondary font-label-caps mb-4 block">CÂU HỎI SỐ {(rs.questionIndex || 0) + 1}</span>
+            <h2 className="text-3xl md:text-4xl font-headline-lg text-on-surface leading-relaxed">
+              {gameState.currentQuestion.text}
+            </h2>
+          </motion.div>
+        ) : (
+          <div className="flex flex-col items-center justify-center opacity-50 mb-12">
+            <span className="material-symbols-outlined text-6xl mb-4 animate-spin">hourglass_empty</span>
+            <span className="font-label-caps text-xl tracking-widest text-on-surface-variant">ĐANG CHỜ MC PHÁT CÂU HỎI...</span>
+          </div>
+        )
       )}
 
       {/* Giao diện tương tác dựa trên chế độ */}
       {!isAutoMode ? (
         <>
-          {/* Hiển thị ai đang giành quyền trả lời (Manual) */}
-          {rs.buzzedPlayer && (
+          {rs.part === 'personal' ? (
             <motion.div 
-              initial={{ y: -50, opacity: 0 }} 
-              animate={{ y: 0, opacity: 1 }}
-              className="bg-primary-container text-on-primary-container px-8 py-4 rounded-full font-headline-lg text-2xl z-10 mb-12 revolutionary-glow flex items-center gap-4 border border-primary/50"
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }}
+              className={`p-12 rounded-3xl border-4 flex flex-col items-center gap-4 ${rs.currentPlayerIndex === gameState.players.findIndex(p => p.username === username) ? 'bg-primary/20 border-primary shadow-[0_0_50px_rgba(165,28,48,0.3)]' : 'bg-surface border-outline-variant opacity-50'}`}
             >
-              <span className="material-symbols-outlined animate-bounce">notifications_active</span>
-              {rs.buzzedPlayer} ĐANG TRẢ LỜI
-            </motion.div>
-          )}
-
-          {/* Nút Chuông Khổng Lồ dành cho Thí Sinh (Manual) */}
-          {role === 'user' && (
-            <motion.button
-              whileHover={!rs.bellLocked && !someoneElseBuzzed ? { scale: 1.05 } : {}}
-              whileTap={!rs.bellLocked && !someoneElseBuzzed ? { scale: 0.95 } : {}}
-              onClick={handleBuzz}
-              disabled={rs.bellLocked || !!someoneElseBuzzed}
-              className={`w-64 h-64 rounded-full flex flex-col items-center justify-center border-8 z-10 transition-all duration-300
-                ${isBuzzed 
-                  ? 'bg-primary border-white shadow-[0_0_100px_rgba(255,179,179,0.8)] text-on-primary' 
-                  : rs.bellLocked || someoneElseBuzzed
-                    ? 'bg-surface-variant border-outline-variant text-on-surface-variant opacity-50 cursor-not-allowed'
-                    : 'bg-gradient-to-br from-error to-primary-container border-error shadow-[0_0_40px_rgba(255,180,171,0.5)] text-white hover:shadow-[0_0_80px_rgba(255,180,171,0.8)] cursor-pointer'
-                }
-              `}
-            >
-              <span className="material-symbols-outlined text-6xl mb-2">touch_app</span>
-              <span className="font-headline-lg text-2xl uppercase tracking-wider">
-                {rs.bellLocked ? 'ĐÃ KHÓA' : 'GIÀNH QUYỀN'}
+              <span className="material-symbols-outlined text-6xl text-primary">person</span>
+              <span className="font-headline-lg text-3xl">
+                Lượt thi cá nhân của {gameState.players[rs.currentPlayerIndex]?.username}
               </span>
-            </motion.button>
-          )}
+              {rs.currentPlayerIndex === gameState.players.findIndex(p => p.username === username) && (
+                <span className="text-on-surface-variant font-label-caps mt-4 text-xl tracking-widest text-secondary animate-pulse">
+                  HÃY LẮNG NGHE MC ĐỌC CÂU HỎI VÀ TRẢ LỜI!
+                </span>
+              )}
+            </motion.div>
+          ) : rs.part === 'common' ? (
+            <>
+              {/* Hiển thị ai đang giành quyền trả lời (Manual - Common) */}
+              {rs.buzzedPlayer && (
+                <motion.div 
+                  initial={{ y: -50, opacity: 0 }} 
+                  animate={{ y: 0, opacity: 1 }}
+                  className="bg-primary-container text-on-primary-container px-8 py-4 rounded-full font-headline-lg text-2xl z-10 mb-12 revolutionary-glow flex items-center gap-4 border border-primary/50"
+                >
+                  <span className="material-symbols-outlined animate-bounce">notifications_active</span>
+                  {rs.buzzedPlayer} ĐANG TRẢ LỜI
+                </motion.div>
+              )}
+
+              {/* Nút Chuông Khổng Lồ dành cho Thí Sinh (Manual - Common) */}
+              {role === 'user' && (
+                <motion.button
+                  whileHover={!rs.bellLocked && !someoneElseBuzzed ? { scale: 1.05 } : {}}
+                  whileTap={!rs.bellLocked && !someoneElseBuzzed ? { scale: 0.95 } : {}}
+                  onClick={handleBuzz}
+                  disabled={rs.bellLocked || !!someoneElseBuzzed}
+                  className={`w-64 h-64 rounded-full flex flex-col items-center justify-center border-8 z-10 transition-all duration-300
+                    ${isBuzzed 
+                      ? 'bg-primary border-white shadow-[0_0_100px_rgba(255,179,179,0.8)] text-on-primary' 
+                      : rs.bellLocked || someoneElseBuzzed
+                        ? 'bg-surface-variant border-outline-variant text-on-surface-variant opacity-50 cursor-not-allowed'
+                        : 'bg-gradient-to-br from-error to-primary-container border-error shadow-[0_0_40px_rgba(255,180,171,0.5)] text-white hover:shadow-[0_0_80px_rgba(255,180,171,0.8)] cursor-pointer'
+                    }
+                  `}
+                >
+                  <span className="material-symbols-outlined text-6xl mb-2">touch_app</span>
+                  <span className="font-headline-lg text-2xl uppercase tracking-wider">
+                    {rs.bellLocked ? 'ĐÃ KHÓA' : 'GIÀNH QUYỀN'}
+                  </span>
+                </motion.button>
+              )}
+            </>
+          ) : null}
         </>
       ) : (
         /* Giao diện Ô Nhập Text (Auto Mode) */
-        role === 'user' && gameState.currentQuestion && (
+        role === 'user' && (
           <form onSubmit={handleAutoSubmit} className="w-full max-w-2xl flex gap-4 z-10">
             <input
               type="text"
               value={autoAnswer}
               onChange={(e) => setAutoAnswer(e.target.value)}
               placeholder="Gõ đáp án của bạn vào đây..."
-              disabled={rs.isPaused}
+              disabled={rs.isPaused || !gameState.currentQuestion}
               className="flex-1 bg-surface-container border-2 border-outline-variant focus:border-secondary p-4 rounded-xl text-xl text-on-surface outline-none transition-colors disabled:opacity-50"
               autoFocus
             />
             <button 
               type="submit"
-              disabled={rs.isPaused || !autoAnswer.trim()}
+              disabled={rs.isPaused || !gameState.currentQuestion || !autoAnswer.trim()}
               className="bg-secondary text-on-secondary px-8 py-4 rounded-xl font-headline-lg text-xl hover:bg-secondary/90 transition-colors shadow-[0_0_20px_rgba(233,193,118,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               GỬI
