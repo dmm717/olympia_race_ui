@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import toast from 'react-hot-toast';
 
@@ -47,6 +47,7 @@ const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
 export function SocketProvider({ children }: { children: ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
+  const socketRef = useRef<Socket | null>(null);
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [questions, setQuestions] = useState<any>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -67,6 +68,10 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   };
 
   const connect = (newUsername: string, newRole: string) => {
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+    }
+
     setUsername(newUsername);
     setRole(newRole);
     
@@ -178,12 +183,14 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       }
     });
 
+    socketRef.current = newSocket;
     setSocket(newSocket);
   };
 
   const disconnect = () => {
-    if (socket) {
-      socket.disconnect();
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
     }
     setSocket(null);
     setIsConnected(false);
@@ -198,13 +205,14 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     // Tự động khôi phục đăng nhập khi reload trang
     const savedUser = localStorage.getItem('olympia_username');
     const savedRole = localStorage.getItem('olympia_role');
-    if (savedUser && savedRole && !socket) {
+    if (savedUser && savedRole && !socketRef.current) {
       connect(savedUser, savedRole);
     }
 
     return () => {
-      if (socket) {
-        socket.disconnect();
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
       }
     };
   }, []); // Chỉ chạy 1 lần khi mount

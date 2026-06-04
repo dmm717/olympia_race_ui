@@ -73,7 +73,7 @@ export default function Round2View() {
       </div>
 
       {/* RIGHT COLUMN: ROWS & QUESTIONS */}
-      <div className="w-full md:w-1/2 lg:w-2/5 flex flex-col gap-4 overflow-y-auto hide-scrollbar pl-2">
+      <div className="w-full md:w-1/2 lg:w-2/5 flex flex-col gap-4 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pl-2">
         
         <div className="bg-primary/20 border-l-4 border-primary px-6 py-4 rounded-r-xl flex justify-between items-center shadow-md">
            <h3 className="font-headline-lg text-xl md:text-2xl text-primary tracking-wider">
@@ -82,7 +82,7 @@ export default function Round2View() {
         </div>
 
         {/* The rows */}
-        <div className="flex flex-col gap-3 flex-1 max-h-[40vh] overflow-y-auto pr-2">
+        <div className="flex flex-col gap-3 flex-1 max-h-[40vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pr-2">
           {gameState.questions?.round2?.rows?.map((rowData: any) => {
              const rowId = rowData.rowId;
              const length = rowData.length || 0;
@@ -91,7 +91,7 @@ export default function Round2View() {
 
              return (
                <div key={rowId} className="flex items-center gap-3 w-full">
-                 <div className="flex-1 flex gap-2 justify-start items-center p-3 bg-surface-variant/20 rounded-xl border border-outline-variant/30 overflow-x-auto hide-scrollbar h-[70px]">
+                 <div className="flex-1 flex gap-2 justify-start items-center p-3 bg-surface-variant/20 rounded-xl border border-outline-variant/30 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] min-h-[70px]">
                    {Array.from({length}).map((_, idx) => (
                      <div 
                         key={idx} 

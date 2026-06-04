@@ -9,6 +9,7 @@ export default function AdminControls() {
   const { socket, gameState } = useSocket();
   const [targetRound, setTargetRound] = useState("1");
   const [isQuestionManagerOpen, setIsQuestionManagerOpen] = useState(false);
+  const [r2AddScorePlayerIndex, setR2AddScorePlayerIndex] = useState(0);
   const rs = gameState?.roundState;
 
   if (!socket || !gameState) return null;
@@ -286,6 +287,27 @@ export default function AdminControls() {
             {gameState.gameMode === 'manual' && (
               <>
                 <div className="flex-1"></div>
+                
+                {/* Nút cộng điểm thủ công cho hàng ngang */}
+                <div className="flex items-center gap-2 bg-surface p-2 rounded border border-outline-variant mr-4">
+                  <span className="text-sm font-label-caps text-primary">CỘNG ĐIỂM HÀNG NGANG:</span>
+                  <select 
+                    value={r2AddScorePlayerIndex}
+                    onChange={(e) => setR2AddScorePlayerIndex(parseInt(e.target.value))}
+                    className="bg-transparent outline-none border-b border-outline-variant text-sm text-on-surface"
+                  >
+                    {gameState.players.map((p, i) => <option key={i} value={i}>{p.username}</option>)}
+                  </select>
+                  <button 
+                    onClick={() => {
+                      socket.emit('admin_add_score', { playerIndex: r2AddScorePlayerIndex, score: 10 });
+                    }}
+                    className="bg-green-600/20 text-green-400 border border-green-600 px-4 py-1 rounded hover:bg-green-600 hover:text-white transition-colors text-sm font-bold shadow-sm"
+                  >
+                    +10 ĐIỂM
+                  </button>
+                </div>
+
                 {rs?.obstacleBuzzedPlayer ? (
                   <div className="flex items-center gap-4 bg-error/20 p-2 rounded border border-error/50">
                     <span className="font-bold text-error">⚠️ {rs.obstacleBuzzedPlayer} TRẢ LỜI CHƯỚNG NGẠI VẬT!</span>
