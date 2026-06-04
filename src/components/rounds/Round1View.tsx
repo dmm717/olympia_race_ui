@@ -20,11 +20,19 @@ export default function Round1View() {
   if (!rs) return null;
 
 
-  const handleAutoSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (autoAnswer.trim() && !rs?.isPaused) {
-      socket?.emit('user_auto_submit_r1', { answer: autoAnswer.trim() });
-      setAutoAnswer(""); // Xoá trắng ô nhập sau khi gửi
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+
+  // Xoá lựa chọn khi đổi câu hỏi
+  useEffect(() => {
+    setSelectedOption(null);
+  }, [rs?.questionIndex]);
+
+  const handleAutoSubmit = (e?: React.FormEvent, directAnswer?: string) => {
+    if (e) e.preventDefault();
+    const finalAnswer = directAnswer || autoAnswer.trim();
+    if (finalAnswer && !rs?.isPaused) {
+      socket?.emit('user_auto_submit_r1', { answer: finalAnswer });
+      if (!directAnswer) setAutoAnswer(""); // Xoá trắng ô nhập sau khi gửi
     }
   };
 
@@ -93,6 +101,45 @@ export default function Round1View() {
           <h2 className="text-3xl md:text-4xl font-headline-lg text-on-surface leading-relaxed">
             {gameState.currentQuestion.text}
           </h2>
+
+          {/* Rendering Options (A, B, C, D) */}
+          {gameState.currentQuestion.options && gameState.currentQuestion.options.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 w-full">
+              {gameState.currentQuestion.options.map((opt: string, idx: number) => {
+                const label = String.fromCharCode(65 + idx);
+                const isSelected = selectedOption === opt;
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      if (role === 'user') {
+                        setSelectedOption(opt);
+                        if (isAutoMode) {
+                          handleAutoSubmit(undefined, opt);
+                        }
+                      }
+                    }}
+                    className={`relative p-4 rounded-xl border-2 text-left font-bold transition-all overflow-hidden group
+                      ${isSelected 
+                        ? 'bg-primary/20 border-primary text-primary shadow-[0_0_20px_rgba(165,28,48,0.3)]' 
+                        : 'bg-surface-variant border-outline-variant text-on-surface hover:border-primary/50 hover:bg-surface-variant/80'
+                      }
+                      ${role !== 'user' ? 'cursor-default' : 'cursor-pointer'}
+                    `}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-black
+                        ${isSelected ? 'bg-primary text-on-primary' : 'bg-outline-variant text-on-surface-variant group-hover:bg-primary/50 group-hover:text-white'}
+                      `}>
+                        {label}
+                      </span>
+                      <span className="text-lg">{opt}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </motion.div>
       ) : (
         <div className="flex flex-col items-center justify-center opacity-50 mb-12 mt-12">

@@ -63,6 +63,41 @@ export default function Round2View() {
         >
            <span className="text-primary font-headline-lg text-2xl tracking-[0.2em] uppercase">CHƯỚNG NGẠI VẬT</span>
         </motion.div>
+
+        {/* Hiển thị câu hỏi của hàng ngang */}
+        {gameState.currentQuestion && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass-card w-full mt-8 p-6 rounded-2xl border border-primary/50 text-center shadow-[0_0_20px_rgba(165,28,48,0.2)] flex flex-col items-center"
+          >
+            <h2 className="text-2xl font-headline-lg text-on-surface leading-relaxed">
+              {gameState.currentQuestion.text}
+            </h2>
+
+            {/* Rendering Options (A, B, C, D) */}
+            {gameState.currentQuestion.options && gameState.currentQuestion.options.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 w-full">
+                {gameState.currentQuestion.options.map((opt: string, idx: number) => {
+                  const label = String.fromCharCode(65 + idx);
+                  return (
+                    <div
+                      key={idx}
+                      className="relative p-3 rounded-xl border border-outline-variant text-left font-bold transition-all bg-surface-variant text-on-surface"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-black bg-outline-variant text-on-surface-variant">
+                          {label}
+                        </span>
+                        <span className="text-lg">{opt}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </motion.div>
+        )}
       </div>
 
       {/* Nút bấm chuông chướng ngại vật (Góc dưới cùng) */}

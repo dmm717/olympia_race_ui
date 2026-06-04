@@ -51,16 +51,58 @@ export default function Round3View() {
       <h3 className="font-headline-xl text-3xl uppercase mb-8 z-10 text-primary">TĂNG TỐC</h3>
       
       {/* Đồng hồ */}
-      <div className="flex flex-col items-center mb-12 z-10">
+      <div className="flex flex-col items-center mb-8 z-10">
         <div className="text-sm font-label-caps text-on-surface-variant mb-2 tracking-[0.3em]">THỜI GIAN CÒN LẠI</div>
         <motion.div 
           animate={{ scale: timeLeft <= 5 && timeLeft > 0 ? [1, 1.1, 1] : 1 }}
           transition={{ repeat: Infinity, duration: 1 }}
-          className={`text-[120px] leading-none font-display-lg ${timeLeft <= 5 ? 'text-error drop-shadow-[0_0_20px_rgba(255,180,171,0.8)]' : 'text-secondary drop-shadow-[0_0_15px_rgba(233,193,118,0.3)]'}`}
+          className={`text-[80px] leading-none font-display-lg ${timeLeft <= 5 ? 'text-error drop-shadow-[0_0_20px_rgba(255,180,171,0.8)]' : 'text-secondary drop-shadow-[0_0_15px_rgba(233,193,118,0.3)]'}`}
         >
           {timeLeft}
         </motion.div>
       </div>
+
+      {/* Hiển thị câu hỏi */}
+      {gameState.currentQuestion && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-card w-full max-w-4xl p-6 rounded-2xl border border-primary/50 text-center mb-8 shadow-[0_0_20px_rgba(165,28,48,0.2)] flex flex-col items-center z-10"
+        >
+          <h2 className="text-2xl font-headline-lg text-on-surface leading-relaxed">
+            {gameState.currentQuestion.text}
+          </h2>
+
+          {/* Rendering Options (A, B, C, D) */}
+          {gameState.currentQuestion.options && gameState.currentQuestion.options.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 w-full">
+              {gameState.currentQuestion.options.map((opt: string, idx: number) => {
+                const label = String.fromCharCode(65 + idx);
+                return (
+                  <button
+                    type="button"
+                    key={idx}
+                    onClick={() => {
+                      if (!isLocked && !hasSubmitted) {
+                        setMyAnswer(opt);
+                      }
+                    }}
+                    className={`relative p-3 rounded-xl border-2 text-left font-bold transition-all bg-surface-variant text-on-surface hover:border-primary/50
+                      ${myAnswer === opt ? 'border-primary bg-primary/20 text-primary' : 'border-outline-variant'}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-black ${myAnswer === opt ? 'bg-primary text-on-primary' : 'bg-outline-variant text-on-surface-variant'}`}>
+                        {label}
+                      </span>
+                      <span className="text-lg">{opt}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </motion.div>
+      )}
 
       {/* Giao diện User */}
       {role === 'user' && (
