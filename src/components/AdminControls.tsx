@@ -168,11 +168,6 @@ export default function AdminControls() {
                   <button onClick={() => socket.emit('admin_start_common_r1')} className="btn-admin bg-primary-container text-on-primary-container whitespace-nowrap shadow-sm hover:shadow-md">
                     Bắt đầu chung {gameState.gameMode === 'auto' ? '(Auto)' : ''}
                   </button>
-                  {gameState.gameMode === 'manual' && rs?.part === 'common' && (
-                    <button onClick={() => socket.emit('admin_allow_bell')} className="btn-admin bg-secondary text-on-secondary shadow-sm hover:shadow-md animate-pulse">
-                      MỞ KHÓA CHUÔNG
-                    </button>
-                  )}
                 </div>
               </div>
 
