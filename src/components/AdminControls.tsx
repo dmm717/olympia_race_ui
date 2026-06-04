@@ -155,6 +155,17 @@ export default function AdminControls() {
               </div>
             </div>
 
+            {/* Giao diện câu hỏi cho Admin */}
+            {gameState.currentQuestion && (
+              <div className="bg-surface p-4 rounded-lg border border-outline-variant/50 w-full">
+                <span className="text-secondary font-label-caps mb-2 block">CÂU HỎI SỐ {(rs?.questionIndex || 0) + 1}</span>
+                <p className="font-headline-lg text-lg mb-2">{gameState.currentQuestion.text}</p>
+                <div className="bg-green-600/10 border border-green-600/30 p-2 rounded text-green-700 dark:text-green-400 font-bold">
+                  ĐÁP ÁN: {gameState.currentQuestion.answer}
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center gap-4">
               <span className="font-label-caps text-primary w-32">KHỞI ĐỘNG CHUNG:</span>
               <button onClick={() => socket.emit('admin_start_common_r1')} className="btn-admin bg-primary-container text-on-primary-container">
@@ -167,10 +178,18 @@ export default function AdminControls() {
               )}
             </div>
 
-            {/* Judging Controls for Manual Mode */}
+            {/* Judging & Controls for Manual Mode */}
             {gameState.gameMode === 'manual' && (
-              <div className="mt-2 bg-surface-variant/30 p-3 rounded border border-outline-variant/50 flex items-center gap-4">
-                {rs?.part === 'personal' ? (
+              <div className="mt-2 bg-surface-variant/30 p-3 rounded border border-outline-variant/50 flex flex-col gap-4">
+                <div className="flex justify-between items-center w-full">
+                  <span className="text-sm font-label-caps">ĐIỀU KHIỂN:</span>
+                  <button onClick={() => socket.emit('admin_next_question_r1')} className="btn-admin bg-secondary text-on-secondary py-1 px-4 text-xs font-bold shadow-md hover:bg-secondary/80">
+                    CÂU TIẾP THEO (NEXT)
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-4 border-t border-outline-variant/30 pt-3">
+                  {rs?.part === 'personal' ? (
                   <>
                     <span className="font-bold text-primary flex items-center gap-2">
                       <span className="material-symbols-outlined text-sm">person</span>
@@ -203,6 +222,7 @@ export default function AdminControls() {
                 ) : (
                   <span className="text-on-surface-variant text-sm italic">Hãy chọn bắt đầu 1 trong 2 hình thức Khởi động...</span>
                 )}
+                </div>
               </div>
             )}
           </div>

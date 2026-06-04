@@ -19,21 +19,42 @@ export default function Round1View() {
 
   if (!rs) return null;
 
-  const handleBuzz = () => {
-    socket?.emit('ring_bell');
-  };
 
   const handleAutoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (autoAnswer.trim() && !rs.isPaused) {
+    if (autoAnswer.trim() && !rs?.isPaused) {
       socket?.emit('user_auto_submit_r1', { answer: autoAnswer.trim() });
       setAutoAnswer(""); // Xoá trắng ô nhập sau khi gửi
     }
   };
 
-  const isBuzzed = rs.buzzedPlayer === username;
-  const someoneElseBuzzed = rs.buzzedPlayer && rs.buzzedPlayer !== username;
-  const isAutoMode = gameState.gameMode === 'auto';
+  const isBuzzed = rs?.buzzedPlayer === username;
+  const someoneElseBuzzed = rs?.buzzedPlayer && rs.buzzedPlayer !== username;
+  const isAutoMode = gameState?.gameMode === 'auto';
+
+  const handleBuzz = () => {
+    if (!rs?.bellLocked && !someoneElseBuzzed && !isBuzzed) {
+      socket?.emit('buzz');
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        e.preventDefault(); // Tránh scroll trang
+        handleBuzz();
+      }
+    };
+
+    if (role === 'user' && !isAutoMode && rs?.part === 'common') {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [rs?.bellLocked, someoneElseBuzzed, isBuzzed, role, isAutoMode, rs?.part]);
+
+  if (!gameState || !rs) return null;
 
   return (
     <div className="flex flex-col items-center justify-center flex-1 w-full h-full relative">
@@ -61,25 +82,23 @@ export default function Round1View() {
         </div>
       )}
 
-      {/* Hiển thị câu hỏi (Chỉ Auto Mode) */}
-      {isAutoMode && (
-        gameState.currentQuestion ? (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="glass-card w-full max-w-4xl p-8 rounded-2xl border-2 border-primary/50 text-center mb-12 shadow-[0_0_30px_rgba(165,28,48,0.2)]"
-          >
-            <span className="text-secondary font-label-caps mb-4 block">CÂU HỎI SỐ {(rs.questionIndex || 0) + 1}</span>
-            <h2 className="text-3xl md:text-4xl font-headline-lg text-on-surface leading-relaxed">
-              {gameState.currentQuestion.text}
-            </h2>
-          </motion.div>
-        ) : (
-          <div className="flex flex-col items-center justify-center opacity-50 mb-12">
-            <span className="material-symbols-outlined text-6xl mb-4 animate-spin">hourglass_empty</span>
-            <span className="font-label-caps text-xl tracking-widest text-on-surface-variant">ĐANG CHỜ MC PHÁT CÂU HỎI...</span>
-          </div>
-        )
+      {/* Hiển thị câu hỏi (Cho cả Auto và Manual) */}
+      {gameState.currentQuestion ? (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-card w-full max-w-4xl p-8 rounded-2xl border-2 border-primary/50 text-center mb-12 shadow-[0_0_30px_rgba(165,28,48,0.2)] flex flex-col items-center"
+        >
+          <span className="text-secondary font-label-caps mb-4 block">CÂU HỎI SỐ {(rs.questionIndex || 0) + 1}</span>
+          <h2 className="text-3xl md:text-4xl font-headline-lg text-on-surface leading-relaxed">
+            {gameState.currentQuestion.text}
+          </h2>
+        </motion.div>
+      ) : (
+        <div className="flex flex-col items-center justify-center opacity-50 mb-12 mt-12">
+          <span className="material-symbols-outlined text-6xl mb-4 animate-spin">hourglass_empty</span>
+          <span className="font-label-caps text-xl tracking-widest text-on-surface-variant">ĐANG CHỜ MC PHÁT CÂU HỎI...</span>
+        </div>
       )}
 
       {/* Giao diện tương tác dựa trên chế độ */}
