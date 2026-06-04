@@ -18,19 +18,9 @@ export default function Round2View() {
     }
   };
 
-  const handleBuzzRow = () => {
-    if (!rs.buzzedPlayer && !rs.obstacleBuzzedPlayer && !isEliminated) {
-      socket?.emit('ring_bell');
-    }
-  };
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
-        e.preventDefault();
-        socket?.emit('ring_bell');
-      }
-      if (e.code === 'KeyG') {
         e.preventDefault();
         socket?.emit('ring_bell_obstacle');
       }
@@ -182,59 +172,27 @@ export default function Round2View() {
           </motion.div>
         )}
 
-        {/* Giao diện nút chuông (User Only) */}
-        {role === 'user' && (
-          <div className="mt-8 z-10 w-full flex flex-row justify-center gap-8">
+        {/* Nút bấm chuông chướng ngại vật (User Only) */}
+        {role === 'user' && !rs.obstacleBuzzedPlayer && (
+          <div className="mt-8 z-10 w-full flex justify-center">
             {isEliminated ? (
               <div className="w-full bg-surface-variant text-on-surface-variant py-4 text-center rounded-xl font-label-caps border border-outline-variant/50">
                 BẠN ĐÃ BỊ LOẠI KHỎI VÒNG NÀY
               </div>
             ) : (
-              <>
-                {/* Nút Chuông Hàng Ngang */}
-                {!rs.buzzedPlayer && !rs.obstacleBuzzedPlayer && (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleBuzzRow}
-                    className="w-48 h-48 rounded-full flex flex-col items-center justify-center border-8 z-10 transition-all duration-300 bg-gradient-to-br from-primary to-primary-container border-primary shadow-[0_0_20px_rgba(0,120,255,0.5)] text-white hover:shadow-[0_0_40px_rgba(0,120,255,0.8)] cursor-pointer"
-                  >
-                    <span className="material-symbols-outlined text-5xl mb-2">notifications_active</span>
-                    <span className="font-headline-lg text-lg uppercase tracking-wider text-center leading-tight">
-                      HÀNG NGANG<br/><span className="text-sm opacity-80">(SPACE)</span>
-                    </span>
-                  </motion.button>
-                )}
-
-                {/* Nút Chuông Chướng Ngại Vật */}
-                {!rs.obstacleBuzzedPlayer && (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleBuzzObstacle}
-                    className="w-48 h-48 rounded-full flex flex-col items-center justify-center border-8 z-10 transition-all duration-300 bg-gradient-to-br from-error to-error-container border-error shadow-[0_0_20px_rgba(255,50,50,0.5)] text-white hover:shadow-[0_0_40px_rgba(255,50,50,0.8)] cursor-pointer"
-                  >
-                    <span className="material-symbols-outlined text-5xl mb-2">touch_app</span>
-                    <span className="font-headline-lg text-lg uppercase tracking-wider text-center leading-tight">
-                      CHƯỚNG NGẠI VẬT<br/><span className="text-sm opacity-80">(G)</span>
-                    </span>
-                  </motion.button>
-                )}
-              </>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleBuzzObstacle}
+                className="w-64 h-64 rounded-full flex flex-col items-center justify-center border-8 z-10 transition-all duration-300 bg-gradient-to-br from-error to-primary-container border-error shadow-[0_0_40px_rgba(255,180,171,0.5)] text-white hover:shadow-[0_0_80px_rgba(255,180,171,0.8)] cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-6xl mb-2">touch_app</span>
+                <span className="font-headline-lg text-2xl uppercase tracking-wider text-center">
+                  TRẢ LỜI<br/>CHƯỚNG NGẠI VẬT
+                </span>
+              </motion.button>
             )}
           </div>
-        )}
-
-        {/* Cảnh báo có người bấm Hàng Ngang */}
-        {rs.buzzedPlayer && !rs.obstacleBuzzedPlayer && (
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }} 
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-primary text-on-primary px-4 py-4 rounded-xl font-headline-lg text-lg text-center shadow-[0_0_20px_rgba(0,120,255,0.5)] border-2 border-white mt-4 flex justify-center items-center gap-2"
-          >
-            <span className="material-symbols-outlined animate-bounce">priority_high</span>
-            QUYỀN TRẢ LỜI HÀNG NGANG: {rs.buzzedPlayer}
-          </motion.div>
         )}
 
         {/* Cảnh báo có người bấm chướng ngại vật */}
@@ -242,10 +200,10 @@ export default function Round2View() {
           <motion.div 
             initial={{ scale: 0.9, opacity: 0 }} 
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-error text-on-error px-4 py-4 rounded-xl font-headline-lg text-lg text-center shadow-[0_0_20px_rgba(255,50,50,0.5)] border-2 border-white mt-4 flex justify-center items-center gap-2"
+            className="bg-error text-on-error px-4 py-4 rounded-xl font-headline-lg text-lg text-center shadow-[0_0_20px_rgba(255,180,171,0.5)] border-2 border-white mt-4 flex justify-center items-center gap-2"
           >
             <span className="material-symbols-outlined animate-ping">warning</span>
-            TÍN HIỆU CHƯỚNG NGẠI VẬT: {rs.obstacleBuzzedPlayer}
+            TÍN HIỆU TỪ: {rs.obstacleBuzzedPlayer}
           </motion.div>
         )}
 
