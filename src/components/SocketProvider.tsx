@@ -12,6 +12,7 @@ export interface RoundState {
   bellLocked?: boolean;
   openedRows?: number[];
   obstacleBuzzedPlayer?: string | null;
+  obstacleSolved?: boolean;
   submissions?: { username: string; answer: string; timeMs: number }[];
   currentPlayerIndex: number;
   currentQuestionValue: number;

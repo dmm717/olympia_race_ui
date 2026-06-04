@@ -62,7 +62,7 @@ export default function Round2View() {
     return `absolute w-1/2 h-1/2 bg-surface-container-high border-background flex items-center justify-center font-display-lg text-4xl text-on-surface-variant transition-all duration-1000 ease-in-out ${positionClass} ${isOpened ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`;
   };
 
-  const isObstacleRevealed = !!(rs.bellLocked && rs.obstacleBuzzedPlayer);
+  const isObstacleRevealed = !!rs.obstacleSolved;
 
   return (
     <div className="flex flex-col md:flex-row flex-1 w-full h-full p-4 gap-6 relative overflow-hidden">
