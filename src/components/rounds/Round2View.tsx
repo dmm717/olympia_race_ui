@@ -155,19 +155,23 @@ export default function Round2View() {
 
         {/* Nút bấm chuông chướng ngại vật (User Only) */}
         {role === 'user' && !rs.obstacleBuzzedPlayer && (
-          <div className="mt-4 z-10 w-full">
+          <div className="mt-8 z-10 w-full flex justify-center">
             {isEliminated ? (
               <div className="w-full bg-surface-variant text-on-surface-variant py-4 text-center rounded-xl font-label-caps border border-outline-variant/50">
                 BẠN ĐÃ BỊ LOẠI KHỎI VÒNG NÀY
               </div>
             ) : (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleBuzzObstacle}
-                className="w-full bg-error text-on-error py-4 rounded-xl font-headline-lg text-xl tracking-wider hover:bg-error/90 hover:scale-[1.02] transition-all duration-200 shadow-[0_5px_15px_rgba(255,180,171,0.2)] border-b-4 border-error-container active:scale-95 active:border-b-0 flex items-center justify-center gap-2"
+                className="w-64 h-64 rounded-full flex flex-col items-center justify-center border-8 z-10 transition-all duration-300 bg-gradient-to-br from-error to-primary-container border-error shadow-[0_0_40px_rgba(255,180,171,0.5)] text-white hover:shadow-[0_0_80px_rgba(255,180,171,0.8)] cursor-pointer"
               >
-                <span className="material-symbols-outlined align-bottom">gavel</span>
-                TRẢ LỜI CHƯỚNG NGẠI VẬT
-              </button>
+                <span className="material-symbols-outlined text-6xl mb-2">touch_app</span>
+                <span className="font-headline-lg text-2xl uppercase tracking-wider text-center">
+                  TRẢ LỜI<br/>CHƯỚNG NGẠI VẬT
+                </span>
+              </motion.button>
             )}
           </div>
         )}
