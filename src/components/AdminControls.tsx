@@ -135,106 +135,146 @@ export default function AdminControls() {
       {/* Dynamic Controls based on Round */}
       <div className="flex flex-wrap gap-4 items-center">
         {gameState.round === 1 && (
-          <div className="flex flex-col gap-4 w-full">
-            <div className="flex items-center gap-4 border-b border-outline-variant/30 pb-4">
-              <span className="font-label-caps text-primary w-32">KHỞI ĐỘNG RIÊNG:</span>
-              <div className="flex items-center gap-2 bg-surface p-2 rounded border border-outline-variant">
-                <span className="text-sm">Thí sinh:</span>
-                <select id="r1_player" className="bg-transparent outline-none border-b border-outline-variant text-sm">
-                  {gameState.players.map((p, i) => <option key={i} value={i}>{p.username}</option>)}
-                </select>
-                <button 
-                  onClick={() => {
-                    const idx = (document.getElementById('r1_player') as HTMLSelectElement).value;
-                    socket.emit('admin_start_personal_r1', { playerIndex: parseInt(idx) });
-                  }}
-                  className="btn-admin bg-surface-variant text-on-surface-variant py-1 px-3"
-                >
-                  Bắt đầu Khởi động riêng {gameState.gameMode === 'auto' ? '(Tự Động)' : ''}
-                </button>
-              </div>
-            </div>
-
-            {/* Giao diện câu hỏi cho Admin */}
-            {gameState.currentQuestion && (
-              <div className="bg-surface p-4 rounded-lg border border-outline-variant/50 w-full">
-                <span className="text-secondary font-label-caps mb-2 block">CÂU HỎI SỐ {(rs?.questionIndex || 0) + 1}</span>
-                <p className="font-headline-lg text-lg mb-2">{gameState.currentQuestion.text}</p>
-                <div className="bg-green-600/10 border border-green-600/30 p-2 rounded text-green-700 dark:text-green-400 font-bold">
-                  ĐÁP ÁN: {(() => {
-                    const ans = gameState.currentQuestion.answer;
-                    const opts = gameState.currentQuestion.options;
-                    if (opts && opts.length > 0) {
-                      const idx = opts.indexOf(ans);
-                      if (idx >= 0) {
-                        return `${String.fromCharCode(65 + idx)}: ${ans}`;
-                      }
-                    }
-                    return ans;
-                  })()}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
+            
+            {/* Cột trái: Các Nút Điều Khiển */}
+            <div className="flex flex-col gap-4 bg-surface-variant/10 p-5 rounded-2xl border border-outline-variant/40 shadow-sm">
+              
+              {/* Khởi động riêng */}
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-outline-variant/30 pb-4">
+                <span className="font-label-caps text-primary">KHỞI ĐỘNG RIÊNG:</span>
+                <div className="flex items-center gap-2 bg-surface p-1.5 rounded-lg border border-outline-variant/50 shadow-inner">
+                  <span className="text-sm pl-2">Thí sinh:</span>
+                  <select id="r1_player" className="bg-transparent outline-none border-b border-outline-variant/50 text-sm font-bold text-secondary">
+                    {gameState.players.map((p, i) => <option key={i} value={i}>{p.username}</option>)}
+                  </select>
+                  <button 
+                    onClick={() => {
+                      const idx = (document.getElementById('r1_player') as HTMLSelectElement).value;
+                      socket.emit('admin_start_personal_r1', { playerIndex: parseInt(idx) });
+                    }}
+                    className="btn-admin bg-surface-variant text-on-surface-variant py-1 px-4 ml-1 whitespace-nowrap hover:bg-primary/20 hover:text-primary transition-colors"
+                  >
+                    Bắt đầu {gameState.gameMode === 'auto' ? '(Auto)' : ''}
+                  </button>
                 </div>
               </div>
-            )}
 
-            <div className="flex items-center gap-4">
-              <span className="font-label-caps text-primary w-32">KHỞI ĐỘNG CHUNG:</span>
-              <button onClick={() => socket.emit('admin_start_common_r1')} className="btn-admin bg-primary-container text-on-primary-container">
-                Bắt đầu Khởi động chung {gameState.gameMode === 'auto' ? '(Tự Động)' : ''}
-              </button>
-              {gameState.gameMode === 'manual' && rs?.part === 'common' && (
-                <button onClick={() => socket.emit('admin_allow_bell')} className="btn-admin bg-surface-variant text-on-surface-variant">
-                  MỞ KHÓA CHUÔNG
-                </button>
+              {/* Khởi động chung */}
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-outline-variant/30 pb-4">
+                <span className="font-label-caps text-primary">KHỞI ĐỘNG CHUNG:</span>
+                <div className="flex gap-2">
+                  <button onClick={() => socket.emit('admin_start_common_r1')} className="btn-admin bg-primary-container text-on-primary-container whitespace-nowrap shadow-sm hover:shadow-md">
+                    Bắt đầu chung {gameState.gameMode === 'auto' ? '(Auto)' : ''}
+                  </button>
+                  {gameState.gameMode === 'manual' && rs?.part === 'common' && (
+                    <button onClick={() => socket.emit('admin_allow_bell')} className="btn-admin bg-secondary text-on-secondary shadow-sm hover:shadow-md animate-pulse">
+                      MỞ KHÓA CHUÔNG
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Điều khiển Manual Mode */}
+              {gameState.gameMode === 'manual' && (
+                <div className="flex flex-col gap-3 pt-2">
+                  <div className="flex justify-between items-center w-full">
+                    <span className="text-sm font-label-caps bg-surface-variant px-3 py-1 rounded-full">ĐIỀU KHIỂN CHẤM ĐIỂM</span>
+                    <button onClick={() => socket.emit('admin_next_question_r1')} className="btn-admin bg-secondary text-on-secondary py-1.5 px-6 text-sm font-bold shadow-md hover:bg-secondary/80 hover:scale-105 transition-transform flex items-center gap-1">
+                      CÂU TIẾP THEO <span className="material-symbols-outlined text-sm">skip_next</span>
+                    </button>
+                  </div>
+                  
+                  <div className="flex flex-col gap-2 bg-surface p-4 rounded-xl border border-outline-variant/50">
+                    {rs?.part === 'personal' ? (
+                      <>
+                        <span className="font-bold text-primary flex items-center gap-2 mb-2 justify-center bg-primary/10 py-2 rounded-lg">
+                          <span className="material-symbols-outlined text-lg">person</span>
+                          {gameState.players[rs.currentPlayerIndex]?.username} đang thi
+                        </span>
+                        <div className="flex gap-3">
+                          <button onClick={() => socket.emit('admin_judge', { correct: true })} className="bg-green-600/10 text-green-500 border-2 border-green-600/50 py-2 rounded-lg font-bold hover:bg-green-600 hover:text-white transition-all flex-1 shadow-sm">
+                            ĐÚNG (+10)
+                          </button>
+                          <button onClick={() => socket.emit('admin_judge', { correct: false })} className="bg-red-600/10 text-red-500 border-2 border-red-600/50 py-2 rounded-lg font-bold hover:bg-red-600 hover:text-white transition-all flex-1 shadow-sm">
+                            SAI (+0)
+                          </button>
+                        </div>
+                      </>
+                    ) : rs?.part === 'common' ? (
+                      rs?.buzzedPlayer ? (
+                        <>
+                          <span className="font-bold text-primary flex items-center gap-2 mb-2 justify-center bg-primary-container text-on-primary-container py-2 rounded-lg shadow-inner">
+                            <span className="material-symbols-outlined text-lg animate-bounce">notifications_active</span>
+                            {rs.buzzedPlayer} giành quyền!
+                          </span>
+                          <div className="flex gap-3">
+                            <button onClick={() => socket.emit('admin_judge', { correct: true })} className="bg-green-600/10 text-green-500 border-2 border-green-600/50 py-2 rounded-lg font-bold hover:bg-green-600 hover:text-white transition-all flex-1 shadow-sm">
+                              ĐÚNG (+10)
+                            </button>
+                            <button onClick={() => socket.emit('admin_judge', { correct: false })} className="bg-red-600/10 text-red-500 border-2 border-red-600/50 py-2 rounded-lg font-bold hover:bg-red-600 hover:text-white transition-all flex-1 shadow-sm">
+                              SAI (-5)
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-on-surface-variant text-sm italic w-full text-center py-6 opacity-60 flex flex-col items-center gap-2">
+                          <span className="material-symbols-outlined text-3xl">hourglass_empty</span>
+                          Đang chờ thí sinh bấm chuông...
+                        </div>
+                      )
+                    ) : (
+                      <div className="text-on-surface-variant text-sm italic w-full text-center py-6 opacity-60 flex flex-col items-center gap-2">
+                        <span className="material-symbols-outlined text-3xl">info</span>
+                        Vui lòng Bắt đầu một phần thi
+                      </div>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
 
-            {/* Judging & Controls for Manual Mode */}
-            {gameState.gameMode === 'manual' && (
-              <div className="mt-2 bg-surface-variant/30 p-3 rounded border border-outline-variant/50 flex flex-col gap-4">
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-sm font-label-caps">ĐIỀU KHIỂN:</span>
-                  <button onClick={() => socket.emit('admin_next_question_r1')} className="btn-admin bg-secondary text-on-secondary py-1 px-4 text-xs font-bold shadow-md hover:bg-secondary/80">
-                    CÂU TIẾP THEO (NEXT)
-                  </button>
-                </div>
-
-                <div className="flex items-center gap-4 border-t border-outline-variant/30 pt-3">
-                  {rs?.part === 'personal' ? (
-                  <>
-                    <span className="font-bold text-primary flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm">person</span>
-                      {gameState.players[rs.currentPlayerIndex]?.username} đang thi khởi động riêng
+            {/* Cột phải: Câu hỏi hiển thị */}
+            <div className="flex flex-col h-full">
+              {gameState.currentQuestion ? (
+                <div className="bg-surface p-8 rounded-2xl border-2 border-primary/30 w-full h-full flex flex-col shadow-[0_10px_30px_rgba(0,0,0,0.2)] relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-primary/5 rounded-bl-full pointer-events-none"></div>
+                  <span className="text-secondary font-label-caps mb-6 flex items-center gap-2 text-lg">
+                    <span className="material-symbols-outlined">help_center</span>
+                    CÂU HỎI SỐ {(rs?.questionIndex || 0) + 1}
+                  </span>
+                  
+                  <p className="font-headline-lg text-2xl md:text-3xl mb-8 flex-1 text-on-surface leading-relaxed relative z-10">
+                    {gameState.currentQuestion.text}
+                  </p>
+                  
+                  <div className="bg-green-900/20 border-l-8 border-green-500 p-5 rounded-r-xl text-green-400 font-bold text-xl flex flex-col gap-2 shadow-inner relative z-10">
+                    <span className="text-xs font-label-caps text-green-500/70 flex items-center gap-1">
+                      <span className="material-symbols-outlined text-sm">verified</span>
+                      ĐÁP ÁN ĐÚNG
                     </span>
-                    <button onClick={() => socket.emit('admin_judge', { correct: true })} className="bg-green-600/20 text-green-400 border border-green-600 px-4 py-1 rounded hover:bg-green-600 hover:text-white transition-colors">
-                      ĐÚNG (+10)
-                    </button>
-                    <button onClick={() => socket.emit('admin_judge', { correct: false })} className="bg-red-600/20 text-red-400 border border-red-600 px-4 py-1 rounded hover:bg-red-600 hover:text-white transition-colors">
-                      SAI (+0)
-                    </button>
-                  </>
-                ) : rs?.part === 'common' ? (
-                  rs?.buzzedPlayer ? (
-                    <>
-                      <span className="font-bold text-primary flex items-center gap-2">
-                        <span className="material-symbols-outlined text-sm">notifications_active</span>
-                        {rs.buzzedPlayer} đang trả lời!
-                      </span>
-                      <button onClick={() => socket.emit('admin_judge', { correct: true })} className="bg-green-600/20 text-green-400 border border-green-600 px-4 py-1 rounded hover:bg-green-600 hover:text-white transition-colors">
-                        ĐÚNG (+10)
-                      </button>
-                      <button onClick={() => socket.emit('admin_judge', { correct: false })} className="bg-red-600/20 text-red-400 border border-red-600 px-4 py-1 rounded hover:bg-red-600 hover:text-white transition-colors">
-                        SAI (-5)
-                      </button>
-                    </>
-                  ) : (
-                    <span className="text-on-surface-variant text-sm italic">Chưa ai bấm chuông Khởi động chung...</span>
-                  )
-                ) : (
-                  <span className="text-on-surface-variant text-sm italic">Hãy chọn bắt đầu 1 trong 2 hình thức Khởi động...</span>
-                )}
+                    <span>
+                      {(() => {
+                        const ans = gameState.currentQuestion.answer;
+                        const opts = gameState.currentQuestion.options;
+                        if (opts && opts.length > 0) {
+                          const idx = opts.indexOf(ans);
+                          if (idx >= 0) {
+                            return `${String.fromCharCode(65 + idx)}: ${ans}`;
+                          }
+                        }
+                        return ans;
+                      })()}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="bg-surface/30 p-8 rounded-2xl border-2 border-outline-variant/30 border-dashed w-full h-full flex flex-col items-center justify-center opacity-40 min-h-[300px]">
+                  <span className="material-symbols-outlined text-6xl mb-4">visibility_off</span>
+                  <p className="font-label-caps text-xl tracking-widest">CHƯA CÓ CÂU HỎI</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

@@ -42,7 +42,7 @@ export default function Round1View() {
 
   const handleBuzz = () => {
     if (!rs?.bellLocked && !someoneElseBuzzed && !isBuzzed) {
-      socket?.emit('buzz');
+      socket?.emit('ring_bell');
     }
   };
 
