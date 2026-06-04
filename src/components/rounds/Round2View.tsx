@@ -2,10 +2,11 @@
 
 import { useSocket } from "../SocketProvider";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Round2View() {
   const { socket, gameState, username, role } = useSocket();
+  const [answer, setAnswer] = useState('');
   const rs = gameState?.roundState;
 
   if (!rs) return null;
@@ -167,6 +168,60 @@ export default function Round2View() {
                     </div>
                   );
                 })}
+              </div>
+            )}
+
+            {/* Khung nhập đáp án (User Only) */}
+            {role === 'user' && !isEliminated && (
+              <div className="mt-4 w-full flex gap-2">
+                <input
+                  type="text"
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && answer.trim()) {
+                      socket?.emit('submit_answer', { answer: answer.trim() });
+                    }
+                  }}
+                  className="flex-1 bg-surface text-on-surface p-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none font-bold uppercase text-center"
+                  placeholder="NHẬP ĐÁP ÁN..."
+                  autoComplete="off"
+                />
+                <button
+                  onClick={() => {
+                    if (answer.trim()) {
+                      socket?.emit('submit_answer', { answer: answer.trim() });
+                    }
+                  }}
+                  className="bg-primary text-on-primary px-6 py-3 rounded-lg font-bold hover:bg-primary/90 transition-colors shadow-md"
+                >
+                  GỬI
+                </button>
+              </div>
+            )}
+
+            {/* Hiển thị danh sách đáp án (Admin Only) */}
+            {role === 'admin' && rs?.submissions && rs.submissions.length > 0 && (
+              <div className="mt-4 w-full bg-surface/80 p-4 rounded-xl border border-outline-variant/30 max-h-48 overflow-y-auto">
+                <h4 className="text-sm font-label-caps text-secondary mb-3 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm">list_alt</span>
+                  ĐÁP ÁN TỪ THÍ SINH ({rs.submissions.length})
+                </h4>
+                <div className="flex flex-col gap-2">
+                  {rs.submissions.map((sub, idx) => (
+                    <div key={idx} className="flex justify-between items-center bg-surface p-2 rounded shadow-sm border border-outline-variant/20">
+                      <span className="font-bold text-on-surface">{sub.username}</span>
+                      <div className="flex items-center gap-4">
+                        <span className="font-mono text-primary font-bold bg-primary-container text-on-primary-container px-3 py-1 rounded">
+                          {sub.answer}
+                        </span>
+                        <span className="text-xs text-on-surface-variant font-mono w-16 text-right">
+                          {(sub.timeMs / 1000).toFixed(2)}s
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </motion.div>
