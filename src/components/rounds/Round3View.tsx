@@ -142,9 +142,10 @@ export default function Round3View() {
           <div className="w-1/2 flex items-center justify-center border-r border-outline-variant/30 pr-6 relative">
              {rs.mediaVisible && q.mediaUrl ? (
                q.type === 'video' ? (
-                 <video src={q.mediaUrl} controls autoPlay className="w-full max-h-[60vh] rounded-2xl border-2 border-secondary shadow-[0_0_30px_rgba(233,193,118,0.2)] object-contain bg-black" />
+                 // @ts-ignore
+                 <video src={q.mediaUrl} controls autoPlay referrerPolicy="no-referrer" className="w-full max-h-[60vh] rounded-2xl border-2 border-secondary shadow-[0_0_30px_rgba(233,193,118,0.2)] object-contain bg-black" />
                ) : (
-                 <img src={q.mediaUrl} alt="Question Media" className="w-full max-h-[60vh] rounded-2xl border-2 border-secondary shadow-[0_0_30px_rgba(233,193,118,0.2)] object-contain bg-black" />
+                 <img src={q.mediaUrl} alt="Question Media" referrerPolicy="no-referrer" className="w-full max-h-[60vh] rounded-2xl border-2 border-secondary shadow-[0_0_30px_rgba(233,193,118,0.2)] object-contain bg-black" />
                )
              ) : (
                <div className="w-full h-[60vh] flex items-center justify-center bg-surface-variant/30 rounded-2xl border-2 border-dashed border-outline-variant">
