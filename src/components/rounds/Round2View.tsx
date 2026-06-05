@@ -60,16 +60,16 @@ export default function Round2View() {
       case 5: positionClass = "top-[25%] left-[25%] w-[50%] h-[50%] border-4 shadow-2xl z-10"; break; // Center
     }
 
-    return `absolute w-1/2 h-1/2 bg-surface-container-high border-background flex items-center justify-center font-display-lg text-4xl text-on-surface-variant transition-all duration-1000 ease-in-out ${positionClass} ${isOpened ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`;
+    return `absolute w-1/2 h-1/2 bg-surface-container-high border-background flex items-center justify-center font-display-lg text-2xl md:text-3xl text-on-surface-variant transition-all duration-1000 ease-in-out ${positionClass} ${isOpened ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`;
   };
 
   const isObstacleRevealed = !!rs.obstacleSolved;
 
   return (
-    <div className="flex flex-col md:flex-row flex-1 w-full h-full p-4 gap-6 relative overflow-hidden">
+    <div className="flex flex-col md:flex-row flex-1 w-full h-full p-2 gap-4 relative overflow-hidden justify-center">
       
       {/* LEFT COLUMN: IMAGE PUZZLE */}
-      <div className="flex-1 w-full relative bg-black/40 rounded-xl overflow-hidden shadow-2xl self-start aspect-[4/3]">
+      <div className="w-full md:w-1/2 lg:w-[45%] max-w-[500px] xl:max-w-[600px] relative bg-black/40 rounded-xl overflow-hidden shadow-xl self-start md:self-center aspect-[4/3] mx-auto">
         {/* The hidden image */}
         <div 
           className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
@@ -93,16 +93,16 @@ export default function Round2View() {
       </div>
 
       {/* RIGHT COLUMN: ROWS & QUESTIONS */}
-      <div className="w-full md:w-1/2 lg:w-2/5 flex flex-col gap-4 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pl-2">
+      <div className="w-full md:w-1/2 lg:w-1/2 xl:w-[45%] flex flex-col gap-2 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-2 py-1">
         
-        <div className="bg-primary/20 border-l-4 border-primary px-6 py-4 rounded-r-xl flex justify-between items-center shadow-md">
-           <h3 className="font-headline-lg text-xl md:text-2xl text-primary tracking-wider">
+        <div className="bg-primary/20 border-l-4 border-primary px-3 py-1.5 rounded-r-lg flex justify-between items-center shadow-sm">
+           <h3 className="font-bold text-sm md:text-base text-primary tracking-wider">
              CHƯỚNG NGẠI VẬT CÓ {gameState.questions?.round2?.keyword?.length || 0} CHỮ CÁI
            </h3>
         </div>
 
         {/* The rows */}
-        <div className="flex flex-col gap-3 flex-shrink-0 max-h-[40vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pr-2">
+        <div className="flex flex-col gap-1.5 flex-shrink-0 max-h-[35vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pr-1">
           {gameState.questions?.round2?.rows?.map((rowData: any) => {
              const rowId = rowData.rowId;
              const length = rowData.length || 0;
@@ -110,12 +110,12 @@ export default function Round2View() {
              const answer = rowData.answer || "";
 
              return (
-               <div key={rowId} className="flex items-center gap-3 w-full">
-                 <div className="flex-1 flex gap-2 justify-start items-center p-3 bg-surface-variant/20 rounded-xl border border-outline-variant/30 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] min-h-[70px]">
+               <div key={rowId} className="flex items-center gap-1.5 w-full">
+                 <div className="flex-1 flex gap-1 justify-start items-center p-1.5 bg-surface-variant/20 rounded-lg border border-outline-variant/30 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] min-h-[36px]">
                    {Array.from({length}).map((_, idx) => (
                      <div 
                         key={idx} 
-                        className={`w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-xl shadow-[inset_0_-2px_5px_rgba(0,0,0,0.5),0_2px_4px_rgba(0,0,0,0.3)] transition-colors duration-500
+                        className={`w-6 h-6 flex-shrink-0 rounded flex items-center justify-center font-bold text-xs shadow-[inset_0_-1px_3px_rgba(0,0,0,0.5),0_1px_2px_rgba(0,0,0,0.3)] transition-colors duration-500
                         ${isOpened ? 'bg-secondary text-background' : 'bg-primary/80 border border-primary-container text-transparent'}`}
                      >
                         {isOpened ? answer[idx] : ''}
@@ -126,14 +126,14 @@ export default function Round2View() {
                  <button 
                     onClick={() => handleRowClick(rowId)}
                     disabled={isOpened && role === 'admin'}
-                    className={`w-14 h-14 flex-shrink-0 flex items-center justify-center rounded-xl font-headline-lg shadow-lg border-2 transition-all 
+                    className={`w-8 h-8 flex-shrink-0 flex items-center justify-center rounded font-bold shadow border transition-all 
                     ${isOpened ? 'bg-secondary/20 text-secondary border-secondary/50 opacity-50 cursor-not-allowed' : 'bg-surface-container-high text-on-surface hover:bg-primary/20 hover:border-primary'} 
                     ${role === 'admin' && !isOpened ? 'cursor-pointer hover:scale-105 active:scale-95' : (!isOpened ? 'cursor-default' : '')}`}
                  >
                    {role === 'admin' && gameState.currentQuestion?.rowId === rowId && !isOpened ? (
-                     <span className="text-sm font-bold text-primary animate-pulse">LẬT</span>
+                     <span className="text-[10px] font-bold text-primary animate-pulse">LẬT</span>
                    ) : (
-                     <span className="text-2xl">{rowId}</span>
+                     <span className="text-sm">{rowId}</span>
                    )}
                  </button>
                </div>
@@ -146,22 +146,22 @@ export default function Round2View() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-surface-container p-6 rounded-2xl border border-primary/40 shadow-xl flex flex-col items-center mt-2 flex-shrink-0"
+            className="bg-surface-container p-3 rounded-lg border border-primary/40 shadow flex flex-col items-center mt-2 flex-shrink-0"
           >
-            <h4 className="text-lg font-headline-lg text-on-surface text-center leading-snug mb-4">
+            <h4 className="text-sm font-bold text-on-surface text-center leading-snug mb-2">
               {gameState.currentQuestion.text}
             </h4>
 
             {gameState.currentQuestion.options && gameState.currentQuestion.options.length > 0 && (
-              <div className="grid grid-cols-2 gap-3 w-full">
+              <div className="grid grid-cols-2 gap-1.5 w-full">
                 {gameState.currentQuestion.options.map((opt: string, idx: number) => {
                   const label = String.fromCharCode(65 + idx);
                   return (
                     <div
                       key={idx}
-                      className="p-3 rounded-lg border border-outline-variant/50 text-left font-bold bg-surface-variant text-on-surface text-sm flex items-center gap-2"
+                      className="p-1.5 rounded border border-outline-variant/50 text-left font-bold bg-surface-variant text-on-surface text-[11px] flex items-center gap-1.5"
                     >
-                      <span className="w-6 h-6 rounded flex-shrink-0 flex items-center justify-center text-xs bg-background text-on-surface-variant">
+                      <span className="w-4 h-4 rounded-sm flex-shrink-0 flex items-center justify-center text-[9px] bg-background text-on-surface-variant">
                         {label}
                       </span>
                       <span className="truncate">{opt}</span>
@@ -173,7 +173,7 @@ export default function Round2View() {
 
             {/* Khung nhập đáp án (User Only) */}
             {role === 'user' && !isEliminated && (
-              <div className="mt-4 w-full flex gap-2">
+              <div className="mt-2 w-full flex gap-2">
                 <input
                   type="text"
                   value={answer}
@@ -183,7 +183,7 @@ export default function Round2View() {
                       socket?.emit('submit_answer', { answer: answer.trim() });
                     }
                   }}
-                  className="flex-1 bg-surface text-on-surface p-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none font-bold uppercase text-center"
+                  className="flex-1 bg-surface text-on-surface p-1.5 rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none font-bold uppercase text-center text-[11px]"
                   placeholder="NHẬP ĐÁP ÁN..."
                   autoComplete="off"
                 />
@@ -193,7 +193,7 @@ export default function Round2View() {
                       socket?.emit('submit_answer', { answer: answer.trim() });
                     }
                   }}
-                  className="bg-primary text-on-primary px-6 py-3 rounded-lg font-bold hover:bg-primary/90 transition-colors shadow-md"
+                  className="bg-primary text-on-primary px-3 py-1.5 rounded font-bold hover:bg-primary/90 transition-colors shadow-sm text-[11px]"
                 >
                   GỬI
                 </button>
@@ -202,20 +202,20 @@ export default function Round2View() {
 
             {/* Hiển thị danh sách đáp án (Admin Only) */}
             {role === 'admin' && rs?.submissions && rs.submissions.length > 0 && (
-              <div className="mt-4 w-full bg-surface/80 p-4 rounded-xl border border-outline-variant/30 max-h-48 overflow-y-auto">
-                <h4 className="text-sm font-label-caps text-secondary mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm">list_alt</span>
+              <div className="mt-2 w-full bg-surface/80 p-2 rounded border border-outline-variant/30 max-h-32 overflow-y-auto">
+                <h4 className="text-[11px] font-bold text-secondary mb-1.5 flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[12px]">list_alt</span>
                   ĐÁP ÁN TỪ THÍ SINH ({rs.submissions.length})
                 </h4>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1">
                   {rs.submissions.map((sub, idx) => (
-                    <div key={idx} className="flex justify-between items-center bg-surface p-2 rounded shadow-sm border border-outline-variant/20">
+                    <div key={idx} className="flex justify-between items-center bg-surface p-1 px-2 rounded text-xs shadow-sm border border-outline-variant/20">
                       <span className="font-bold text-on-surface">{sub.username}</span>
-                      <div className="flex items-center gap-4">
-                        <span className="font-mono text-primary font-bold bg-primary-container text-on-primary-container px-3 py-1 rounded">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-primary font-bold bg-primary-container text-on-primary-container px-1.5 py-0.5 rounded text-[10px]">
                           {sub.answer}
                         </span>
-                        <span className="text-xs text-on-surface-variant font-mono w-16 text-right">
+                        <span className="text-[10px] text-on-surface-variant font-mono w-10 text-right">
                           {(sub.timeMs / 1000).toFixed(2)}s
                         </span>
                       </div>
@@ -229,21 +229,21 @@ export default function Round2View() {
 
         {/* Nút bấm chuông chướng ngại vật (User Only) */}
         {role === 'user' && !rs.obstacleBuzzedPlayer && (
-          <div className="mt-8 z-10 w-full flex justify-center">
+          <div className="mt-2 z-10 w-full flex justify-center flex-shrink-0">
             {isEliminated ? (
-              <div className="w-full bg-surface-variant text-on-surface-variant py-4 text-center rounded-xl font-label-caps border border-outline-variant/50">
+              <div className="w-full bg-surface-variant text-on-surface-variant py-2 text-center rounded font-bold border border-outline-variant/50 text-xs">
                 BẠN ĐÃ BỊ LOẠI KHỎI VÒNG NÀY
               </div>
             ) : (
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={handleBuzzObstacle}
-                className="w-64 h-64 rounded-full flex flex-col items-center justify-center border-8 z-10 transition-all duration-300 bg-gradient-to-br from-error to-primary-container border-error shadow-[0_0_40px_rgba(255,180,171,0.5)] text-white hover:shadow-[0_0_80px_rgba(255,180,171,0.8)] cursor-pointer"
+                className="w-full py-2.5 rounded-lg flex items-center justify-center gap-2 border-2 z-10 transition-all duration-300 bg-gradient-to-r from-error to-primary-container border-error shadow-[0_0_15px_rgba(255,180,171,0.3)] text-white hover:shadow-[0_0_25px_rgba(255,180,171,0.6)] cursor-pointer"
               >
-                <span className="material-symbols-outlined text-6xl mb-2">touch_app</span>
-                <span className="font-headline-lg text-2xl uppercase tracking-wider text-center">
-                  TRẢ LỜI<br/>CHƯỚNG NGẠI VẬT
+                <span className="material-symbols-outlined text-xl">touch_app</span>
+                <span className="font-bold text-sm uppercase tracking-wider">
+                  GIÀNH QUYỀN TRẢ LỜI CHƯỚNG NGẠI VẬT
                 </span>
               </motion.button>
             )}

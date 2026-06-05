@@ -82,7 +82,7 @@ export default function GameArena() {
         </aside>
 
         {/* Center: Game Board */}
-        <main className="flex-1 p-6 lg:p-12 flex flex-col relative">
+        <main className="flex-1 p-2 lg:p-4 flex flex-col relative overflow-hidden">
           <AnimatePresence mode="wait">
             {currentRound === 0 && (
               <motion.div
