@@ -48,10 +48,10 @@ export default function GameArena() {
       </header>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden z-10 bg-background">
+      <div className={`flex-1 flex flex-col lg:flex-row overflow-hidden z-10 ${role === 'admin' ? 'gap-4 p-4 bg-background' : ''}`}>
         
         {/* Left Sidebar: Scoreboard */}
-        <aside className="w-full lg:w-80 h-full rounded-2xl border border-outline-variant/30 bg-surface/50 p-6 overflow-y-auto flex flex-col gap-6 shadow-lg">
+        <aside className={`w-full lg:w-80 flex flex-col gap-6 overflow-y-auto p-6 bg-surface/50 ${role === 'admin' ? 'h-full rounded-2xl border border-outline-variant/30 shadow-lg' : 'border-b lg:border-b-0 lg:border-r border-outline-variant/30'}`}>
           <div className="w-full flex-shrink-0">
             <h3 className="font-label-caps text-on-surface-variant mb-6 flex items-center gap-2">
               <span className="material-symbols-outlined">leaderboard</span> BẢNG ĐIỂM
@@ -91,7 +91,7 @@ export default function GameArena() {
         )}
 
         {/* Center: Game Board */}
-        <main className="flex-1 h-full rounded-2xl border border-outline-variant/30 bg-surface/20 p-2 lg:p-4 flex flex-col relative overflow-hidden shadow-lg">
+        <main className={`flex-1 flex flex-col relative overflow-hidden ${role === 'admin' ? 'h-full rounded-2xl border border-outline-variant/30 bg-surface/20 p-2 lg:p-4 shadow-lg' : 'p-2 lg:p-4'}`}>
           <AnimatePresence mode="wait">
             {currentRound === 0 && (
               <motion.div
