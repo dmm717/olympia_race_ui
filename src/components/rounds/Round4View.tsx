@@ -61,6 +61,7 @@ export default function Round4View() {
         <div className="text-center">
           <div className="text-xs font-label-caps text-on-surface-variant mb-1 tracking-widest">ĐIỂM CÂU HỎI</div>
           <div className="font-headline-lg text-2xl text-on-surface">{rs.currentQuestionValue}đ</div>
+        </div>
       </div>
 
       {/* Timer chung */}
