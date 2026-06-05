@@ -241,9 +241,6 @@ export default function Round2View() {
                           <span className="font-mono text-primary font-bold bg-primary-container text-on-primary-container px-1.5 py-0.5 rounded text-[10px]">
                             {sub.answer}
                           </span>
-                          <span className="text-[10px] text-on-surface-variant font-mono w-10 text-right">
-                            {(sub.timeMs / 1000).toFixed(2)}s
-                          </span>
                         </div>
                       </div>
                       
