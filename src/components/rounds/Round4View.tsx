@@ -149,25 +149,29 @@ export default function Round4View() {
       )}
 
       {/* Giao diện User - Của kẻ cướp */}
-      {role === 'user' && !isMainPlayer && rs.stealPhase && (
+      {role === 'user' && !isMainPlayer && (
         <div className="z-10 w-full max-w-md flex flex-col items-center mt-8">
-           <div className="text-sm font-label-caps text-error mb-4 tracking-[0.3em] animate-pulse">GIÀNH QUYỀN TRẢ LỜI</div>
+           {rs.stealPhase && <div className="text-sm font-label-caps text-error mb-4 tracking-[0.3em] animate-pulse">GIÀNH QUYỀN TRẢ LỜI</div>}
 
            <button
               onClick={handleSteal}
-              disabled={rs.bellLocked}
+              disabled={!rs.stealPhase || rs.bellLocked}
               className={`w-full py-8 rounded-full font-headline-lg text-3xl uppercase tracking-wider transition-all shadow-[0_10px_0_rgba(0,0,0,0.5)] border-4
-                ${rs.bellLocked 
-                  ? rs.buzzedPlayer === username 
-                    ? 'bg-primary border-primary text-on-primary' // Mình cướp được
-                    : 'bg-surface-variant border-surface-variant text-on-surface-variant opacity-50' // Người khác cướp
-                  : 'bg-error border-error-container text-on-error hover:bg-error/90 active:translate-y-2 active:shadow-none' // Đang mở
+                ${!rs.stealPhase
+                  ? 'bg-surface-variant border-surface-variant text-on-surface-variant opacity-30 cursor-not-allowed' // Chưa được cướp
+                  : rs.bellLocked 
+                    ? rs.buzzedPlayer === username 
+                      ? 'bg-primary border-primary text-on-primary' // Mình cướp được
+                      : 'bg-surface-variant border-surface-variant text-on-surface-variant opacity-50' // Người khác cướp
+                    : 'bg-error border-error-container text-on-error hover:bg-error/90 active:translate-y-2 active:shadow-none animate-pulse' // Đang mở
                 }
               `}
              >
-               {rs.bellLocked 
-                 ? rs.buzzedPlayer === username ? 'BẠN ĐÃ GIÀNH QUYỀN' : 'ĐÃ KHÓA'
-                 : 'CƯỚP ĐIỂM'
+               {!rs.stealPhase 
+                 ? 'CHƯA ĐƯỢC CƯỚP'
+                 : rs.bellLocked 
+                   ? rs.buzzedPlayer === username ? 'BẠN ĐÃ GIÀNH QUYỀN' : 'ĐÃ KHÓA'
+                   : 'CƯỚP ĐIỂM'
                }
            </button>
         </div>
