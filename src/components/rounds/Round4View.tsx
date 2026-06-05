@@ -61,8 +61,14 @@ export default function Round4View() {
         <div className="text-center">
           <div className="text-xs font-label-caps text-on-surface-variant mb-1 tracking-widest">ĐIỂM CÂU HỎI</div>
           <div className="font-headline-lg text-2xl text-on-surface">{rs.currentQuestionValue}đ</div>
-        </div>
       </div>
+
+      {/* Timer chung */}
+      {timeLeft > 0 && (
+        <div className={`text-6xl font-display-lg mb-4 drop-shadow-md z-10 ${rs.stealPhase ? 'text-error animate-pulse' : 'text-primary'}`}>
+          {timeLeft}s
+        </div>
+      )}
 
       {/* Hiệu ứng Ngôi sao hy vọng (Global) */}
       {rs.hopeStarActive && (
@@ -145,10 +151,6 @@ export default function Round4View() {
       {role === 'user' && !isMainPlayer && rs.stealPhase && (
         <div className="z-10 w-full max-w-md flex flex-col items-center mt-8">
            <div className="text-sm font-label-caps text-error mb-4 tracking-[0.3em] animate-pulse">GIÀNH QUYỀN TRẢ LỜI</div>
-           
-           <div className="text-7xl font-display-lg text-error mb-8 drop-shadow-[0_0_15px_rgba(255,180,171,0.5)]">
-             {timeLeft}s
-           </div>
 
            <button
               onClick={handleSteal}
