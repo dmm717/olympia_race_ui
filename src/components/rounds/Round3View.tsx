@@ -224,7 +224,7 @@ export default function Round3View() {
                     disabled={isLocked || hasSubmitted || !myAnswer.trim()}
                     className="bg-primary-container text-on-primary-container py-3 rounded-xl font-headline-lg text-lg tracking-wider disabled:opacity-30 border-b-4 border-primary-fixed-dim active:border-b-0 active:translate-y-1"
                   >
-                    {hasSubmitted ? "ĐÃ NỘP BÀI" : "CHỐT ĐÁP ÁN"}
+                    {hasSubmitted ? "Đã gửi" : "CHỐT ĐÁP ÁN"}
                   </button>
                 </form>
               </div>
@@ -337,7 +337,7 @@ export default function Round3View() {
                 >
                   <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined">{hasSubmitted ? "check_circle" : "send"}</span>
-                    <span>{hasSubmitted ? "ĐÃ NỘP BÀI" : "CHỐT ĐÁP ÁN"}</span>
+                    <span>{hasSubmitted ? "Đã gửi" : "CHỐT ĐÁP ÁN"}</span>
                   </div>
                 </button>
               </div>
