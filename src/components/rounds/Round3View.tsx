@@ -3,6 +3,7 @@
 import { useSocket } from "../SocketProvider";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 
 export default function Round3View() {
   const { socket, gameState, role } = useSocket();
@@ -18,7 +19,21 @@ export default function Round3View() {
   useEffect(() => {
     if (!socket) return;
     const handleTick = (time: number) => setTimeLeft(time);
-    const handleAck = () => setHasSubmitted(true);
+    const handleAck = () => {
+      setHasSubmitted(true);
+      toast.success("Hệ thống đã ghi nhận đáp án!", {
+        position: 'top-center',
+        duration: 3000,
+        style: {
+          background: '#333',
+          color: '#fff',
+          fontWeight: 'bold',
+          fontSize: '1.2rem',
+          padding: '16px 24px',
+          borderRadius: '12px'
+        }
+      });
+    };
 
     socket.on('timer_tick', handleTick);
     socket.on('submission_accepted', handleAck);
@@ -309,18 +324,21 @@ export default function Round3View() {
                 ))}
               </div>
               
-              <div className="w-full flex justify-center mt-4">
+              <div className="fixed bottom-8 right-8 z-50">
                 <button
                   type="button"
                   onClick={() => handleSubmit()}
                   disabled={isLocked || slots.some(s => s === null)}
-                  className={`px-12 py-4 rounded-xl font-headline-lg text-2xl tracking-wider transition-all shadow-lg border-b-4 active:border-b-0 active:translate-y-1 ${
+                  className={`px-8 py-4 rounded-xl font-headline-lg text-xl tracking-wider transition-all shadow-[0_10px_30px_rgba(0,0,0,0.3)] border-b-4 active:border-b-0 active:translate-y-1 ${
                     hasSubmitted
                       ? "bg-green-600 text-white border-green-800"
-                      : "bg-primary-container text-on-primary-container border-primary-fixed-dim"
+                      : "bg-primary text-on-primary border-primary-fixed-dim"
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  {hasSubmitted ? "ĐÃ NỘP BÀI (Click nộp lại)" : "CHỐT ĐÁP ÁN"}
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined">{hasSubmitted ? "check_circle" : "send"}</span>
+                    <span>{hasSubmitted ? "ĐÃ NỘP BÀI" : "CHỐT ĐÁP ÁN"}</span>
+                  </div>
                 </button>
               </div>
             </div>
