@@ -19,12 +19,12 @@ export default function Round3View() {
     if (!socket) return;
     const handleTick = (time: number) => setTimeLeft(time);
     const handleAck = () => setHasSubmitted(true);
-    
+
     socket.on('timer_tick', handleTick);
     socket.on('submission_accepted', handleAck);
-    return () => { 
-      socket.off('timer_tick', handleTick); 
-      socket.off('submission_accepted', handleAck); 
+    return () => {
+      socket.off('timer_tick', handleTick);
+      socket.off('submission_accepted', handleAck);
     };
   }, [socket]);
 
@@ -44,7 +44,7 @@ export default function Round3View() {
       setMyAnswer("");
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setHasSubmitted(false);
-      
+
       // Reset DND if it was already manipulated before
       if ((gameState?.currentQuestion?.type === 'drag_drop' || gameState?.currentQuestion?.type === 'drag_drop_match') && gameState.currentQuestion.options) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -72,7 +72,7 @@ export default function Round3View() {
 
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (myAnswer.trim() && !hasSubmitted && !isLocked) {
+    if (myAnswer.trim() && !isLocked) {
       socket?.emit('submit_answer', { answer: myAnswer.trim() });
     }
   };
@@ -82,8 +82,23 @@ export default function Round3View() {
   const isMediaLayout = q?.type === 'image' || q?.type === 'video';
   const isDragDrop = q?.type === 'drag_drop';
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        if (gameState?.currentQuestion?.type === 'drag_drop_match' || gameState?.currentQuestion?.type === 'drag_drop') {
+          // Chỉ nộp bài khi tất cả các ô trống đã được điền
+          if (!isLocked && !slots.some(s => s === null)) {
+            handleSubmit();
+          }
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isLocked, slots, myAnswer, gameState?.currentQuestion]);
+
   const handleDragStart = (e: React.DragEvent, item: any) => {
-    if (isLocked || hasSubmitted) {
+    if (isLocked) {
       e.preventDefault();
       return;
     }
@@ -93,14 +108,14 @@ export default function Round3View() {
 
   const handleDropSlot = (e: React.DragEvent, index: number) => {
     e.preventDefault();
-    if (isLocked || hasSubmitted) return;
+    if (isLocked) return;
     const data = e.dataTransfer.getData('text/plain');
     if (!data) return;
 
     let item: any = data;
     try {
       if (data.startsWith('{')) item = JSON.parse(data);
-    } catch (err) {}
+    } catch (err) { }
 
     const newSlots = [...slots];
     const newOptions = [...dndOptions];
@@ -111,7 +126,7 @@ export default function Round3View() {
     }
 
     newSlots[index] = item;
-    
+
     // Remove from options or other slot
     // For objects, we need to compare IDs
     const isObject = typeof item === 'object';
@@ -130,7 +145,7 @@ export default function Round3View() {
   const renderTimer = () => (
     <div className="flex flex-col items-center mb-6 z-10 w-full">
       <div className="text-sm font-label-caps text-on-surface-variant mb-1 tracking-[0.3em]">THỜI GIAN CÒN LẠI</div>
-      <motion.div 
+      <motion.div
         animate={{ scale: timeLeft <= 5 && timeLeft > 0 ? [1, 1.1, 1] : 1 }}
         transition={{ repeat: Infinity, duration: 1 }}
         className={`text-[60px] md:text-[80px] leading-none font-display-lg ${timeLeft <= 5 ? 'text-error drop-shadow-[0_0_20px_rgba(255,180,171,0.8)]' : 'text-secondary drop-shadow-[0_0_15px_rgba(233,193,118,0.3)]'}`}
@@ -145,7 +160,7 @@ export default function Round3View() {
   return (
     <div className="flex flex-col items-center justify-start flex-1 w-full h-full relative p-4 overflow-hidden">
       <h3 className="font-headline-xl text-2xl uppercase mb-4 z-10 text-primary">TĂNG TỐC {q ? `- CÂU ${(rs.questionIndex || 0) + 1}` : ''}</h3>
-      
+
       {!q ? (
         <div className="flex-1 flex items-center justify-center text-on-surface-variant text-2xl opacity-50 font-bold tracking-widest">
           ĐANG CHỜ CÂU HỎI...
@@ -154,51 +169,51 @@ export default function Round3View() {
         <div className="flex w-full h-full gap-6">
           {/* Cột trái: Media */}
           <div className="w-1/2 flex items-center justify-center border-r border-outline-variant/30 pr-6 relative">
-             {rs.mediaVisible && q.mediaUrl ? (
-               q.type === 'video' ? (
-                 // @ts-ignore
-                 <video src={q.mediaUrl} controls autoPlay referrerPolicy="no-referrer" className="w-full max-h-[60vh] rounded-2xl border-2 border-secondary shadow-[0_0_30px_rgba(233,193,118,0.2)] object-contain bg-black" />
-               ) : (
-                 <img src={q.mediaUrl} alt="Question Media" referrerPolicy="no-referrer" className="w-full max-h-[60vh] rounded-2xl border-2 border-secondary shadow-[0_0_30px_rgba(233,193,118,0.2)] object-contain bg-black" />
-               )
-             ) : (
-               <div className="w-full h-[60vh] flex items-center justify-center bg-surface-variant/30 rounded-2xl border-2 border-dashed border-outline-variant">
-                 <span className="material-symbols-outlined text-[64px] text-on-surface-variant opacity-30">
-                   {q.type === 'video' ? 'movie' : 'image'}
-                 </span>
-               </div>
-             )}
+            {rs.mediaVisible && q.mediaUrl ? (
+              q.type === 'video' ? (
+                // @ts-ignore
+                <video src={q.mediaUrl} controls autoPlay referrerPolicy="no-referrer" className="w-full max-h-[60vh] rounded-2xl border-2 border-secondary shadow-[0_0_30px_rgba(233,193,118,0.2)] object-contain bg-black" />
+              ) : (
+                <img src={q.mediaUrl} alt="Question Media" referrerPolicy="no-referrer" className="w-full max-h-[60vh] rounded-2xl border-2 border-secondary shadow-[0_0_30px_rgba(233,193,118,0.2)] object-contain bg-black" />
+              )
+            ) : (
+              <div className="w-full h-[60vh] flex items-center justify-center bg-surface-variant/30 rounded-2xl border-2 border-dashed border-outline-variant">
+                <span className="material-symbols-outlined text-[64px] text-on-surface-variant opacity-30">
+                  {q.type === 'video' ? 'movie' : 'image'}
+                </span>
+              </div>
+            )}
           </div>
           {/* Cột phải: Câu hỏi & Input */}
           <div className="w-1/2 flex flex-col items-center justify-center pl-6">
-             {renderTimer()}
-             <div className="glass-card w-full p-6 rounded-2xl border border-primary/50 text-center mb-8 shadow-[0_0_20px_rgba(165,28,48,0.2)] flex flex-col items-center z-10">
-               <h2 className="text-2xl font-headline-lg text-on-surface leading-relaxed">
-                 {q.text}
-               </h2>
-             </div>
-             
-             {role === 'user' && (
-               <div className="w-full mt-auto">
-                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                   <input
-                     type="text"
-                     value={myAnswer}
-                     onChange={(e) => setMyAnswer(e.target.value)}
-                     disabled={isLocked || hasSubmitted}
-                     placeholder={isLocked ? "HẾT THỜI GIAN NHẬP" : "Nhập đáp án..."}
-                     className="w-full glass-card text-center text-3xl py-4 rounded-xl border border-primary/30 focus:border-primary outline-none text-on-surface uppercase font-bold disabled:opacity-50"
-                   />
-                   <button
-                     type="submit"
-                     disabled={isLocked || hasSubmitted || !myAnswer.trim()}
-                     className="bg-primary-container text-on-primary-container py-3 rounded-xl font-headline-lg text-lg tracking-wider disabled:opacity-30 border-b-4 border-primary-fixed-dim active:border-b-0 active:translate-y-1"
-                   >
-                     {hasSubmitted ? "ĐÃ NỘP BÀI" : "CHỐT ĐÁP ÁN"}
-                   </button>
-                 </form>
-               </div>
-             )}
+            {renderTimer()}
+            <div className="glass-card w-full p-6 rounded-2xl border border-primary/50 text-center mb-8 shadow-[0_0_20px_rgba(165,28,48,0.2)] flex flex-col items-center z-10">
+              <h2 className="text-2xl font-headline-lg text-on-surface leading-relaxed">
+                {q.text}
+              </h2>
+            </div>
+
+            {role === 'user' && (
+              <div className="w-full mt-auto">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                  <input
+                    type="text"
+                    value={myAnswer}
+                    onChange={(e) => setMyAnswer(e.target.value)}
+                    disabled={isLocked || hasSubmitted}
+                    placeholder={isLocked ? "HẾT THỜI GIAN NHẬP" : "Nhập đáp án..."}
+                    className="w-full glass-card text-center text-3xl py-4 rounded-xl border border-primary/30 focus:border-primary outline-none text-on-surface uppercase font-bold disabled:opacity-50"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isLocked || hasSubmitted || !myAnswer.trim()}
+                    className="bg-primary-container text-on-primary-container py-3 rounded-xl font-headline-lg text-lg tracking-wider disabled:opacity-30 border-b-4 border-primary-fixed-dim active:border-b-0 active:translate-y-1"
+                  >
+                    {hasSubmitted ? "ĐÃ NỘP BÀI" : "CHỐT ĐÁP ÁN"}
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
         </div>
       ) : isDragDropMatch ? (
@@ -209,7 +224,7 @@ export default function Round3View() {
               {q.text}
             </h2>
           </div>
-          
+
           {role === 'user' && (
             <div className="w-full max-w-5xl flex flex-col items-center gap-6">
               {/* Lưới Label + Slot */}
@@ -217,12 +232,12 @@ export default function Round3View() {
                 {q.labels?.map((label: string, idx: number) => (
                   <div key={`label-slot-${idx}`} className="flex flex-col items-center gap-2">
                     <span className="font-bold text-lg text-on-surface">{label}</span>
-                    <div 
+                    <div
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={(e) => handleDropSlot(e, idx)}
                       onClick={() => {
                         const item = slots[idx];
-                        if (isLocked || hasSubmitted || !item) return;
+                        if (isLocked || !item) return;
                         const newSlots = [...slots];
                         newSlots[idx] = null;
                         setSlots(newSlots);
@@ -231,8 +246,8 @@ export default function Round3View() {
                       className="w-full h-[120px] bg-surface-variant/30 rounded-xl border-2 border-dashed border-primary/40 flex items-center justify-center p-2 transition-colors hover:border-primary cursor-pointer relative"
                     >
                       {slots[idx] ? (
-                        <div 
-                          draggable={!isLocked && !hasSubmitted}
+                        <div
+                          draggable={!isLocked}
                           onDragStart={(e) => handleDragStart(e, slots[idx])}
                           className="w-full h-full rounded-lg cursor-grab active:cursor-grabbing shadow-lg overflow-hidden flex items-center justify-center bg-black/10"
                         >
@@ -249,33 +264,33 @@ export default function Round3View() {
 
               {/* Lưới hình ảnh (Options) */}
               <div className="w-full flex gap-4 min-h-[140px] bg-surface-variant/10 p-4 rounded-2xl border border-outline-variant/30 relative mt-4"
-                   onDragOver={(e) => e.preventDefault()}
-                   onDrop={(e) => {
-                      e.preventDefault();
-                      if (isLocked || hasSubmitted) return;
-                      const data = e.dataTransfer.getData('text/plain');
-                      if (!data) return;
-                      let item: any = data;
-                      try { if (data.startsWith('{')) item = JSON.parse(data); } catch(err){}
-                      const oldSlotIdx = slots.findIndex(s => s && s.id === item.id);
-                      if (oldSlotIdx > -1) {
-                        const newSlots = [...slots];
-                        newSlots[oldSlotIdx] = null;
-                        setSlots(newSlots);
-                        setDndOptions([...dndOptions, item]);
-                      }
-                   }}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (isLocked || hasSubmitted) return;
+                  const data = e.dataTransfer.getData('text/plain');
+                  if (!data) return;
+                  let item: any = data;
+                  try { if (data.startsWith('{')) item = JSON.parse(data); } catch (err) { }
+                  const oldSlotIdx = slots.findIndex(s => s && s.id === item.id);
+                  if (oldSlotIdx > -1) {
+                    const newSlots = [...slots];
+                    newSlots[oldSlotIdx] = null;
+                    setSlots(newSlots);
+                    setDndOptions([...dndOptions, item]);
+                  }
+                }}
               >
                 <span className="absolute -top-3 left-6 bg-background px-2 text-xs font-bold text-on-surface-variant">
                   ẢNH ĐỂ CHỌN (Click để đưa lên ô trống)
                 </span>
                 {dndOptions.map((item, idx) => (
-                  <div 
+                  <div
                     key={`opt-img-${item.id}`}
-                    draggable={!isLocked && !hasSubmitted}
+                    draggable={!isLocked}
                     onDragStart={(e) => handleDragStart(e, item)}
                     onClick={() => {
-                      if (isLocked || hasSubmitted) return;
+                      if (isLocked) return;
                       const emptySlotIdx = slots.findIndex(s => s === null);
                       if (emptySlotIdx > -1) {
                         const newSlots = [...slots];
@@ -293,6 +308,21 @@ export default function Round3View() {
                   </div>
                 ))}
               </div>
+              
+              <div className="w-full flex justify-center mt-4">
+                <button
+                  type="button"
+                  onClick={() => handleSubmit()}
+                  disabled={isLocked || slots.some(s => s === null)}
+                  className={`px-12 py-4 rounded-xl font-headline-lg text-2xl tracking-wider transition-all shadow-lg border-b-4 active:border-b-0 active:translate-y-1 ${
+                    hasSubmitted
+                      ? "bg-green-600 text-white border-green-800"
+                      : "bg-primary-container text-on-primary-container border-primary-fixed-dim"
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {hasSubmitted ? "ĐÃ NỘP BÀI (Click nộp lại)" : "CHỐT ĐÁP ÁN"}
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -304,7 +334,7 @@ export default function Round3View() {
               {q.text}
             </h2>
           </div>
-          
+
           {role === 'user' && (
             <div className="w-full max-w-5xl flex flex-col items-center gap-10">
               {/* SLOTS (Answers) */}
@@ -313,8 +343,8 @@ export default function Round3View() {
                   {isLocked ? "ĐANG KHÓA" : "KHUNG ĐÁP ÁN (Kéo thả hoặc Click)"}
                 </span>
                 {slots.map((item, idx) => (
-                  <div 
-                    key={`slot-${idx}`} 
+                  <div
+                    key={`slot-${idx}`}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => handleDropSlot(e, idx)}
                     onClick={() => {
@@ -328,7 +358,7 @@ export default function Round3View() {
                     className="flex-1 min-h-[80px] bg-surface rounded-xl border-2 border-dashed border-primary/40 flex items-center justify-center p-2 transition-colors hover:border-primary cursor-pointer"
                   >
                     {item && (
-                      <div 
+                      <div
                         draggable={!isLocked && !hasSubmitted}
                         onDragStart={(e) => handleDragStart(e, item)}
                         className="w-full h-full bg-primary/20 text-primary border border-primary/50 rounded-lg flex items-center justify-center font-bold text-lg cursor-grab active:cursor-grabbing p-2 text-center"
@@ -342,26 +372,26 @@ export default function Round3View() {
 
               {/* OPTIONS (Draggables) */}
               <div className="w-full flex gap-4 min-h-[100px] bg-surface-variant/10 p-6 rounded-2xl border border-outline-variant/30 relative"
-                   onDragOver={(e) => e.preventDefault()}
-                   onDrop={(e) => {
-                      e.preventDefault();
-                      if (isLocked || hasSubmitted) return;
-                      const item = e.dataTransfer.getData('text/plain');
-                      if (!item) return;
-                      const oldSlotIdx = slots.indexOf(item);
-                      if (oldSlotIdx > -1) {
-                        const newSlots = [...slots];
-                        newSlots[oldSlotIdx] = null;
-                        setSlots(newSlots);
-                        setDndOptions([...dndOptions, item]);
-                      }
-                   }}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (isLocked || hasSubmitted) return;
+                  const item = e.dataTransfer.getData('text/plain');
+                  if (!item) return;
+                  const oldSlotIdx = slots.indexOf(item);
+                  if (oldSlotIdx > -1) {
+                    const newSlots = [...slots];
+                    newSlots[oldSlotIdx] = null;
+                    setSlots(newSlots);
+                    setDndOptions([...dndOptions, item]);
+                  }
+                }}
               >
                 <span className="absolute -top-3 left-6 bg-background px-2 text-xs font-bold text-on-surface-variant">
                   LỰA CHỌN KÉO THẢ (Click để chọn nhanh)
                 </span>
                 {dndOptions.map((item, idx) => (
-                  <div 
+                  <div
                     key={`opt-${idx}`}
                     draggable={!isLocked && !hasSubmitted}
                     onDragStart={(e) => handleDragStart(e, item)}
@@ -383,14 +413,14 @@ export default function Round3View() {
                   </div>
                 ))}
               </div>
-              
+
               <button
-                 onClick={() => handleSubmit()}
-                 disabled={isLocked || hasSubmitted || slots.includes(null)}
-                 className="w-full max-w-sm bg-primary-container text-on-primary-container py-3 rounded-xl font-headline-lg text-lg tracking-wider disabled:opacity-30 border-b-4 border-primary-fixed-dim active:border-b-0 active:translate-y-1 mt-4"
-               >
-                 {hasSubmitted ? "ĐÃ NỘP BÀI" : "CHỐT ĐÁP ÁN (KÉO XONG MỚI CHỐT)"}
-               </button>
+                onClick={() => handleSubmit()}
+                disabled={isLocked || hasSubmitted || slots.includes(null)}
+                className="w-full max-w-sm bg-primary-container text-on-primary-container py-3 rounded-xl font-headline-lg text-lg tracking-wider disabled:opacity-30 border-b-4 border-primary-fixed-dim active:border-b-0 active:translate-y-1 mt-4"
+              >
+                {hasSubmitted ? "ĐÃ NỘP BÀI" : "CHỐT ĐÁP ÁN (KÉO XONG MỚI CHỐT)"}
+              </button>
             </div>
           )}
         </div>
@@ -404,23 +434,23 @@ export default function Round3View() {
           </div>
           {role === 'user' && (
             <div className="w-full max-w-xl">
-               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                 <input
-                   type="text"
-                   value={myAnswer}
-                   onChange={(e) => setMyAnswer(e.target.value)}
-                   disabled={isLocked || hasSubmitted}
-                   placeholder={isLocked ? "HẾT THỜI GIAN NHẬP" : "Nhập đáp án..."}
-                   className="w-full glass-card text-center text-3xl py-4 rounded-xl border border-primary/30 focus:border-primary outline-none text-on-surface uppercase font-bold disabled:opacity-50"
-                 />
-                 <button
-                   type="submit"
-                   disabled={isLocked || hasSubmitted || !myAnswer.trim()}
-                   className="bg-primary-container text-on-primary-container py-3 rounded-xl font-headline-lg text-lg tracking-wider disabled:opacity-30 border-b-4 border-primary-fixed-dim active:border-b-0 active:translate-y-1"
-                 >
-                   {hasSubmitted ? "ĐÃ NỘP BÀI" : "CHỐT ĐÁP ÁN"}
-                 </button>
-               </form>
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <input
+                  type="text"
+                  value={myAnswer}
+                  onChange={(e) => setMyAnswer(e.target.value)}
+                  disabled={isLocked || hasSubmitted}
+                  placeholder={isLocked ? "HẾT THỜI GIAN NHẬP" : "Nhập đáp án..."}
+                  className="w-full glass-card text-center text-3xl py-4 rounded-xl border border-primary/30 focus:border-primary outline-none text-on-surface uppercase font-bold disabled:opacity-50"
+                />
+                <button
+                  type="submit"
+                  disabled={isLocked || hasSubmitted || !myAnswer.trim()}
+                  className="bg-primary-container text-on-primary-container py-3 rounded-xl font-headline-lg text-lg tracking-wider disabled:opacity-30 border-b-4 border-primary-fixed-dim active:border-b-0 active:translate-y-1"
+                >
+                  {hasSubmitted ? "ĐÃ NỘP BÀI" : "CHỐT ĐÁP ÁN"}
+                </button>
+              </form>
             </div>
           )}
         </div>
