@@ -22,7 +22,7 @@ export default function GamePage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background">
+    <div className="min-h-[125vh] flex items-center justify-center relative overflow-hidden bg-background">
       {/* Dynamic Background */}
       <div className="absolute inset-0 z-0 opacity-20">
         <div className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 bg-primary/30 blur-[120px] rounded-full"></div>

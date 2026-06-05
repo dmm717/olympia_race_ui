@@ -25,7 +25,7 @@ export default function GameArena() {
   const isPaused = gameState.status === 'paused';
 
   return (
-    <div className="min-h-screen bg-background text-on-background flex flex-col relative overflow-hidden">
+    <div className="min-h-[125vh] bg-background text-on-background flex flex-col relative overflow-hidden">
       {/* Background Particles/Glow */}
       <div className="absolute inset-0 pointer-events-none opacity-10">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary blur-[150px] rounded-full"></div>
