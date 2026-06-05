@@ -8,12 +8,14 @@ export default function Round2View() {
   const { socket, gameState, username, role } = useSocket();
   const [answer, setAnswer] = useState('');
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [judged, setJudged] = useState<Record<string, 'correct' | 'wrong'>>({});
   const rs = gameState?.roundState;
 
   // Reset answer when a new question is selected
   useEffect(() => {
     setAnswer('');
     setHasSubmitted(false);
+    setJudged({});
   }, [gameState?.currentQuestion?.rowId]);
 
   if (!rs) return null;
@@ -192,6 +194,7 @@ export default function Round2View() {
                     if (e.key === 'Enter' && answer.trim()) {
                       socket?.emit('submit_answer', { answer: answer.trim() });
                       setHasSubmitted(true);
+                      setAnswer('');
                     }
                   }}
                   className={`flex-1 bg-surface p-1.5 rounded border focus:ring-1 outline-none font-bold uppercase text-center text-[11px] transition-colors
@@ -205,6 +208,7 @@ export default function Round2View() {
                     if (answer.trim()) {
                       socket?.emit('submit_answer', { answer: answer.trim() });
                       setHasSubmitted(true);
+                      setAnswer('');
                     }
                   }}
                   className={`px-3 py-1.5 rounded font-bold transition-all shadow-sm text-[11px] flex items-center gap-1
@@ -230,18 +234,49 @@ export default function Round2View() {
                   <span className="material-symbols-outlined text-[12px]">list_alt</span>
                   ĐÁP ÁN TỪ THÍ SINH ({rs.submissions.length})
                 </h4>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   {rs.submissions.map((sub, idx) => (
-                    <div key={idx} className="flex justify-between items-center bg-surface p-1 px-2 rounded text-xs shadow-sm border border-outline-variant/20">
-                      <span className="font-bold text-on-surface">{sub.username}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-primary font-bold bg-primary-container text-on-primary-container px-1.5 py-0.5 rounded text-[10px]">
-                          {sub.answer}
-                        </span>
-                        <span className="text-[10px] text-on-surface-variant font-mono w-10 text-right">
-                          {(sub.timeMs / 1000).toFixed(2)}s
-                        </span>
+                    <div key={idx} className="flex flex-col gap-1 bg-surface p-1.5 px-2 rounded text-xs shadow-sm border border-outline-variant/20">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-on-surface">{sub.username}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-primary font-bold bg-primary-container text-on-primary-container px-1.5 py-0.5 rounded text-[10px]">
+                            {sub.answer}
+                          </span>
+                          <span className="text-[10px] text-on-surface-variant font-mono w-10 text-right">
+                            {(sub.timeMs / 1000).toFixed(2)}s
+                          </span>
+                        </div>
                       </div>
+                      
+                      {!judged[sub.username] ? (
+                        <div className="flex gap-1 justify-end mt-0.5">
+                          <button
+                            onClick={() => {
+                              const playerIndex = gameState.players?.findIndex(p => p.username === sub.username);
+                              if (playerIndex !== undefined && playerIndex >= 0) {
+                                socket?.emit('admin_add_score', { playerIndex, score: 10 });
+                              }
+                              setJudged(prev => ({ ...prev, [sub.username]: 'correct' }));
+                            }}
+                            className="bg-green-600/10 text-green-500 hover:bg-green-600 hover:text-white px-2 py-0.5 rounded text-[10px] font-bold border border-green-600/50 transition-colors"
+                          >
+                            ĐÚNG (+10)
+                          </button>
+                          <button
+                            onClick={() => {
+                              setJudged(prev => ({ ...prev, [sub.username]: 'wrong' }));
+                            }}
+                            className="bg-red-600/10 text-red-500 hover:bg-red-600 hover:text-white px-2 py-0.5 rounded text-[10px] font-bold border border-red-600/50 transition-colors"
+                          >
+                            SAI
+                          </button>
+                        </div>
+                      ) : (
+                        <div className={`text-[9px] font-bold text-right mt-0.5 ${judged[sub.username] === 'correct' ? 'text-green-500' : 'text-red-500'}`}>
+                          {judged[sub.username] === 'correct' ? '✔️ ĐÃ CỘNG 10 ĐIỂM' : '❌ ĐÁP ÁN SAI'}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
