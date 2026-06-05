@@ -102,7 +102,7 @@ export default function Round2View() {
         </div>
 
         {/* The rows */}
-        <div className="flex flex-col gap-3 flex-1 max-h-[40vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pr-2">
+        <div className="flex flex-col gap-3 flex-shrink-0 max-h-[40vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pr-2">
           {gameState.questions?.round2?.rows?.map((rowData: any) => {
              const rowId = rowData.rowId;
              const length = rowData.length || 0;
@@ -146,7 +146,7 @@ export default function Round2View() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-surface-container p-6 rounded-2xl border border-primary/40 shadow-xl flex flex-col items-center mt-2"
+            className="bg-surface-container p-6 rounded-2xl border border-primary/40 shadow-xl flex flex-col items-center mt-2 flex-shrink-0"
           >
             <h4 className="text-lg font-headline-lg text-on-surface text-center leading-snug mb-4">
               {gameState.currentQuestion.text}
