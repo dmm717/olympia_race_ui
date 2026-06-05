@@ -51,7 +51,7 @@ export default function GameArena() {
       <div className={`flex-1 flex flex-col lg:flex-row overflow-hidden z-10 ${role === 'admin' ? 'gap-4 p-4 bg-background' : ''}`}>
         
         {/* Left Sidebar: Scoreboard */}
-        <aside className={`w-full lg:w-80 flex flex-col gap-6 overflow-y-auto p-6 bg-surface/50 ${role === 'admin' ? 'h-full rounded-2xl border border-outline-variant/30 shadow-lg' : 'border-b lg:border-b-0 lg:border-r border-outline-variant/30'}`}>
+        <aside className={`w-full lg:w-80 overflow-y-auto p-6 bg-surface/50 ${role === 'admin' ? 'rounded-2xl border border-outline-variant/30 shadow-lg' : 'border-b lg:border-b-0 lg:border-r border-outline-variant/30'}`}>
           <div className="w-full flex-shrink-0">
             <h3 className="font-label-caps text-on-surface-variant mb-6 flex items-center gap-2">
               <span className="material-symbols-outlined">leaderboard</span> BẢNG ĐIỂM
@@ -85,13 +85,13 @@ export default function GameArena() {
 
         {/* Middle Sidebar: Admin Controls (Only for Admin) */}
         {role === 'admin' && (
-          <aside className="w-full lg:w-[400px] xl:w-[480px] h-full rounded-2xl border border-outline-variant/30 bg-surface-container-low p-4 lg:p-6 overflow-y-auto shadow-lg">
+          <aside className="w-full lg:w-[400px] xl:w-[480px] rounded-2xl border border-outline-variant/30 bg-surface-container-low p-4 lg:p-6 overflow-y-auto shadow-lg">
             <AdminControls />
           </aside>
         )}
 
         {/* Center: Game Board */}
-        <main className={`flex-1 flex flex-col relative overflow-hidden ${role === 'admin' ? 'h-full rounded-2xl border border-outline-variant/30 bg-surface/20 p-2 lg:p-4 shadow-lg' : 'p-2 lg:p-4'}`}>
+        <main className={`flex-1 flex flex-col relative overflow-hidden ${role === 'admin' ? 'rounded-2xl border border-outline-variant/30 bg-surface/20 p-2 lg:p-4 shadow-lg' : 'p-2 lg:p-4'}`}>
           <AnimatePresence mode="wait">
             {currentRound === 0 && (
               <motion.div

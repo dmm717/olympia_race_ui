@@ -219,9 +219,9 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="relative z-10 pt-20">
+      <main className="relative z-10">
         {/* Hero Section */}
-        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+        <section className="relative min-h-[125vh] flex items-center justify-center overflow-hidden">
           {/* Background Image */}
           <div className="absolute inset-0 z-0 light-sweep-container !absolute">
             {/* eslint-disable-next-line @next/next/no-img-element */}
