@@ -48,7 +48,7 @@ export default function Round1View() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space') {
+      if (e.key === 'Alt') {
         e.preventDefault(); // Tránh scroll trang
         handleBuzz();
       }

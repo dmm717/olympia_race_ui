@@ -30,7 +30,7 @@ export default function Round2View() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space') {
+      if (e.key === 'Alt') {
         e.preventDefault();
         socket?.emit('ring_bell_obstacle');
       }

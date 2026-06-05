@@ -29,6 +29,24 @@ export default function Round4View() {
     socket?.emit('ring_bell_steal');
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Alt') {
+        e.preventDefault();
+        if (role === 'user' && !isMainPlayer && rs.stealPhase && !rs.bellLocked) {
+          handleSteal();
+        }
+      }
+    };
+
+    if (role === 'user') {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [role, isMainPlayer, rs?.stealPhase, rs?.bellLocked, socket]);
+
   return (
     <div className="flex flex-col items-center justify-start flex-1 w-full h-full relative p-4">
       <h3 className="font-headline-xl text-3xl uppercase mb-4 z-10 text-primary">VỀ ĐÍCH</h3>
