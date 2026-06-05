@@ -73,42 +73,46 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @utility text-body-lg {
-  font-size: 18px;
-  line-height: 28px;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
   font-weight: 400;
 }
 @utility text-label-caps {
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   letter-spacing: 0.1em;
   font-weight: 600;
 }
 @utility text-headline-lg-mobile {
-  font-size: 28px;
-  line-height: 36px;
+  font-size: 1.75rem;
+  line-height: 2.25rem;
   font-weight: 700;
 }
 @utility text-display-lg {
-  font-size: 72px;
-  line-height: 80px;
+  font-size: 4.5rem;
+  line-height: 5rem;
   letter-spacing: -0.02em;
   font-weight: 900;
 }
 @utility text-body-md {
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 1rem;
+  line-height: 1.5rem;
   font-weight: 400;
 }
 @utility text-headline-lg {
-  font-size: 32px;
-  line-height: 40px;
+  font-size: 2rem;
+  line-height: 2.5rem;
   font-weight: 700;
 }
 @utility text-headline-xl {
-  font-size: 48px;
-  line-height: 56px;
+  font-size: 3rem;
+  line-height: 3.5rem;
   letter-spacing: -0.01em;
   font-weight: 800;
+}
+
+html {
+  zoom: 0.8; /* Thu nhỏ 20% tất cả mọi thứ (layout, size, padding, text, images,...) tương đương với việc trình duyệt zoom out 80% */
 }
 
 body {
