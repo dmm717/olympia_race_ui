@@ -18,6 +18,7 @@ export interface RoundState {
   currentPlayerIndex: number;
   currentQuestionValue: number;
   hopeStarActive?: boolean;
+  hopeStarUsed?: boolean;
   stealPhase?: boolean;
   eliminatedPlayers?: string[];
 }

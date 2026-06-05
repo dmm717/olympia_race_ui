@@ -119,7 +119,7 @@ export default function Round4View() {
       {/* Giao diện User - Của người chơi chính */}
       {role === 'user' && isMainPlayer && !rs.stealPhase && (
         <div className="z-10 w-full max-w-sm flex flex-col items-center mt-12">
-          {!rs.hopeStarActive ? (
+          {!rs.hopeStarActive && !rs.hopeStarUsed ? (
              <button
               onClick={handleToggleHopeStar}
               className="w-full bg-surface-container border border-secondary text-secondary py-6 rounded-2xl font-headline-lg text-xl uppercase hover:bg-secondary/10 transition-colors flex flex-col items-center gap-2 group"
@@ -127,9 +127,15 @@ export default function Round4View() {
                <span className="material-symbols-outlined text-4xl group-hover:scale-125 transition-transform" data-weight="fill">star</span>
                CHỌN NGÔI SAO HY VỌNG
              </button>
+          ) : rs.hopeStarActive ? (
+            <div className="w-full bg-secondary/10 border border-secondary/50 text-secondary py-6 rounded-2xl font-headline-lg text-xl uppercase text-center opacity-50 cursor-not-allowed flex flex-col items-center gap-2">
+              <span className="material-symbols-outlined text-4xl" data-weight="fill">star</span>
+              ĐANG DÙNG NGÔI SAO HY VỌNG
+            </div>
           ) : (
-            <div className="w-full bg-secondary/10 border border-secondary/50 text-secondary py-6 rounded-2xl font-headline-lg text-xl uppercase text-center opacity-50 cursor-not-allowed">
-              ĐÃ CHỌN NGÔI SAO HY VỌNG
+            <div className="w-full bg-surface-variant/30 border border-outline-variant/50 text-on-surface-variant py-6 rounded-2xl font-headline-lg text-xl uppercase text-center opacity-50 cursor-not-allowed flex flex-col items-center gap-2">
+              <span className="material-symbols-outlined text-4xl" data-weight="fill">star_half</span>
+              ĐÃ HẾT QUYỀN SỬ DỤNG
             </div>
           )}
         </div>

@@ -306,7 +306,14 @@ export default function AdminControls() {
               <span className="text-[10px] font-label-caps text-on-surface-variant">CHỌN THÍ SINH:</span>
               <div className="flex items-center gap-2 w-full">
                 <select id="r4_player" className="bg-transparent border border-outline-variant rounded px-2 py-1.5 text-sm outline-none flex-1">
-                  {gameState.players.map((p, i) => <option key={i} value={i}>{p.username}</option>)}
+                  {gameState.players
+                    .map((p, idx) => ({ p, idx }))
+                    .sort((a, b) => b.p.score - a.p.score)
+                    .map((item) => (
+                      <option key={item.idx} value={item.idx}>
+                        {item.p.username} - {item.p.score}đ
+                      </option>
+                  ))}
                 </select>
                 <button 
                   onClick={() => {
@@ -328,7 +335,18 @@ export default function AdminControls() {
                   <button onClick={() => socket.emit('admin_r4_set_question', { value: 20 })} className="flex-1 bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 py-2 rounded font-bold text-xs transition-colors">20 Điểm</button>
                   <button onClick={() => socket.emit('admin_r4_set_question', { value: 30 })} className="flex-1 bg-secondary/10 text-secondary border border-secondary/30 hover:bg-secondary/20 py-2 rounded font-bold text-xs transition-colors">30 Điểm</button>
                 </div>
-                
+                <div className="flex gap-2 w-full mt-2">
+                  <button 
+                    onClick={() => {
+                      const duration = rs?.currentQuestionValue === 30 ? 20 : 15;
+                      socket.emit('admin_r4_start_timer', { duration });
+                    }} 
+                    className="flex-1 bg-amber-600/20 text-amber-500 border border-amber-600/50 py-2 rounded font-bold hover:bg-amber-600 hover:text-white transition-colors text-xs"
+                    disabled={!rs?.currentQuestionValue}
+                  >
+                    PHÁT CÂU HỎI & TÍNH GIỜ ({rs?.currentQuestionValue === 30 ? '20s' : '15s'})
+                  </button>
+                </div>
                 {/* Judging */}
                 <span className="text-[10px] font-label-caps text-on-surface-variant mt-1 border-t border-outline-variant/30 pt-3">CHẤM ĐIỂM:</span>
                 {rs?.stealPhase ? (
