@@ -13,7 +13,7 @@ export interface RoundState {
   openedRows?: number[];
   obstacleBuzzedPlayer?: string | null;
   obstacleSolved?: boolean;
-  submissions?: { username: string; answer: string; timeMs: number }[];
+  submissions?: { username: string; answer: string; timeMs: number; judged?: 'correct' | 'wrong' }[];
   currentPlayerIndex: number;
   currentQuestionValue: number;
   hopeStarActive?: boolean;

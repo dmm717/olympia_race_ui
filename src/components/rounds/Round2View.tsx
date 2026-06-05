@@ -8,14 +8,12 @@ export default function Round2View() {
   const { socket, gameState, username, role } = useSocket();
   const [answer, setAnswer] = useState('');
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [judged, setJudged] = useState<Record<string, 'correct' | 'wrong'>>({});
   const rs = gameState?.roundState;
 
   // Reset answer when a new question is selected
   useEffect(() => {
     setAnswer('');
     setHasSubmitted(false);
-    setJudged({});
   }, [gameState?.currentQuestion?.rowId]);
 
   if (!rs) return null;
@@ -249,15 +247,11 @@ export default function Round2View() {
                         </div>
                       </div>
                       
-                      {!judged[sub.username] ? (
+                      {!sub.judged ? (
                         <div className="flex gap-1 justify-end mt-0.5">
                           <button
                             onClick={() => {
-                              const playerIndex = gameState.players?.findIndex(p => p.username === sub.username);
-                              if (playerIndex !== undefined && playerIndex >= 0) {
-                                socket?.emit('admin_add_score', { playerIndex, score: 10 });
-                              }
-                              setJudged(prev => ({ ...prev, [sub.username]: 'correct' }));
+                              socket?.emit('admin_judge_round2_submission', { username: sub.username, status: 'correct' });
                             }}
                             className="bg-green-600/10 text-green-500 hover:bg-green-600 hover:text-white px-2 py-0.5 rounded text-[10px] font-bold border border-green-600/50 transition-colors"
                           >
@@ -265,7 +259,7 @@ export default function Round2View() {
                           </button>
                           <button
                             onClick={() => {
-                              setJudged(prev => ({ ...prev, [sub.username]: 'wrong' }));
+                              socket?.emit('admin_judge_round2_submission', { username: sub.username, status: 'wrong' });
                             }}
                             className="bg-red-600/10 text-red-500 hover:bg-red-600 hover:text-white px-2 py-0.5 rounded text-[10px] font-bold border border-red-600/50 transition-colors"
                           >
@@ -273,8 +267,8 @@ export default function Round2View() {
                           </button>
                         </div>
                       ) : (
-                        <div className={`text-[9px] font-bold text-right mt-0.5 ${judged[sub.username] === 'correct' ? 'text-green-500' : 'text-red-500'}`}>
-                          {judged[sub.username] === 'correct' ? '✔️ ĐÃ CỘNG 10 ĐIỂM' : '❌ ĐÁP ÁN SAI'}
+                        <div className={`text-[9px] font-bold text-right mt-0.5 ${sub.judged === 'correct' ? 'text-green-500' : 'text-red-500'}`}>
+                          {sub.judged === 'correct' ? '✔️ ĐÃ CỘNG 10 ĐIỂM' : '❌ ĐÁP ÁN SAI'}
                         </div>
                       )}
                     </div>
