@@ -12,8 +12,8 @@ export default function Round3View() {
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   // Drag Drop State
-  const [slots, setSlots] = useState<(string | null)[]>([]);
-  const [dndOptions, setDndOptions] = useState<string[]>([]);
+  const [slots, setSlots] = useState<(any | null)[]>([]);
+  const [dndOptions, setDndOptions] = useState<any[]>([]);
 
   useEffect(() => {
     if (!socket) return;
@@ -31,7 +31,7 @@ export default function Round3View() {
   // Khởi tạo DND Options khi câu hỏi thay đổi
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (gameState?.currentQuestion?.type === 'drag_drop' && gameState.currentQuestion.options) {
+    if ((gameState?.currentQuestion?.type === 'drag_drop' || gameState?.currentQuestion?.type === 'drag_drop_match') && gameState.currentQuestion.options) {
       setDndOptions([...gameState.currentQuestion.options]);
       setSlots(new Array(gameState.currentQuestion.options.length).fill(null));
     }
@@ -46,7 +46,7 @@ export default function Round3View() {
       setHasSubmitted(false);
       
       // Reset DND if it was already manipulated before
-      if (gameState?.currentQuestion?.type === 'drag_drop' && gameState.currentQuestion.options) {
+      if ((gameState?.currentQuestion?.type === 'drag_drop' || gameState?.currentQuestion?.type === 'drag_drop_match') && gameState.currentQuestion.options) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setDndOptions([...gameState.currentQuestion.options]);
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -59,6 +59,10 @@ export default function Round3View() {
   useEffect(() => {
     if (gameState?.currentQuestion?.type === 'drag_drop') {
       const ans = slots.map(s => s || "").join(',');
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMyAnswer(ans);
+    } else if (gameState?.currentQuestion?.type === 'drag_drop_match') {
+      const ans = slots.map(s => s ? s.id : "").join(',');
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setMyAnswer(ans);
     }
@@ -78,36 +82,44 @@ export default function Round3View() {
   const isMediaLayout = q?.type === 'image' || q?.type === 'video';
   const isDragDrop = q?.type === 'drag_drop';
 
-  const handleDragStart = (e: React.DragEvent, item: string) => {
+  const handleDragStart = (e: React.DragEvent, item: any) => {
     if (isLocked || hasSubmitted) {
       e.preventDefault();
       return;
     }
-    e.dataTransfer.setData('text/plain', item);
+    const payload = typeof item === 'string' ? item : JSON.stringify(item);
+    e.dataTransfer.setData('text/plain', payload);
   };
 
   const handleDropSlot = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     if (isLocked || hasSubmitted) return;
-    const item = e.dataTransfer.getData('text/plain');
-    if (!item) return;
+    const data = e.dataTransfer.getData('text/plain');
+    if (!data) return;
+
+    let item: any = data;
+    try {
+      if (data.startsWith('{')) item = JSON.parse(data);
+    } catch (err) {}
 
     const newSlots = [...slots];
     const newOptions = [...dndOptions];
 
     // If target has item, push it back to options
     if (newSlots[index]) {
-      newOptions.push(newSlots[index]!);
+      newOptions.push(newSlots[index]);
     }
 
     newSlots[index] = item;
     
     // Remove from options or other slot
-    const optIdx = newOptions.indexOf(item);
+    // For objects, we need to compare IDs
+    const isObject = typeof item === 'object';
+    const optIdx = newOptions.findIndex(o => isObject ? o.id === item.id : o === item);
     if (optIdx > -1) {
       newOptions.splice(optIdx, 1);
     } else {
-      const oldSlotIdx = slots.indexOf(item);
+      const oldSlotIdx = slots.findIndex(s => s && (isObject ? s.id === item.id : s === item));
       if (oldSlotIdx > -1) newSlots[oldSlotIdx] = null;
     }
 
@@ -127,6 +139,8 @@ export default function Round3View() {
       </motion.div>
     </div>
   );
+
+  const isDragDropMatch = q?.type === 'drag_drop_match';
 
   return (
     <div className="flex flex-col items-center justify-start flex-1 w-full h-full relative p-4 overflow-hidden">
@@ -186,6 +200,101 @@ export default function Round3View() {
                </div>
              )}
           </div>
+        </div>
+      ) : isDragDropMatch ? (
+        <div className="flex flex-col w-full h-full items-center">
+          {renderTimer()}
+          <div className="glass-card w-full max-w-4xl p-4 rounded-2xl border border-primary/50 text-center mb-4 shadow-[0_0_20px_rgba(165,28,48,0.2)]">
+            <h2 className="text-xl font-headline-lg text-on-surface leading-relaxed">
+              {q.text}
+            </h2>
+          </div>
+          
+          {role === 'user' && (
+            <div className="w-full max-w-5xl flex flex-col items-center gap-6">
+              {/* Lưới Label + Slot */}
+              <div className="grid grid-cols-2 gap-x-8 gap-y-6 w-full px-4">
+                {q.labels?.map((label: string, idx: number) => (
+                  <div key={`label-slot-${idx}`} className="flex flex-col items-center gap-2">
+                    <span className="font-bold text-lg text-on-surface">{label}</span>
+                    <div 
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => handleDropSlot(e, idx)}
+                      onClick={() => {
+                        const item = slots[idx];
+                        if (isLocked || hasSubmitted || !item) return;
+                        const newSlots = [...slots];
+                        newSlots[idx] = null;
+                        setSlots(newSlots);
+                        setDndOptions([...dndOptions, item]);
+                      }}
+                      className="w-full h-[120px] bg-surface-variant/30 rounded-xl border-2 border-dashed border-primary/40 flex items-center justify-center p-2 transition-colors hover:border-primary cursor-pointer relative"
+                    >
+                      {slots[idx] ? (
+                        <div 
+                          draggable={!isLocked && !hasSubmitted}
+                          onDragStart={(e) => handleDragStart(e, slots[idx])}
+                          className="w-full h-full rounded-lg cursor-grab active:cursor-grabbing shadow-lg overflow-hidden flex items-center justify-center bg-black/10"
+                        >
+                          <img src={slots[idx].url} alt={slots[idx].id} className="w-full h-full object-contain pointer-events-none" />
+                          <span className="absolute top-2 left-2 bg-black/60 text-white px-2 py-0.5 rounded font-bold">{slots[idx].id}</span>
+                        </div>
+                      ) : (
+                        <span className="text-on-surface-variant opacity-30 text-sm">{isLocked ? "ĐANG KHÓA" : "Click / Thả ảnh vào đây"}</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Lưới hình ảnh (Options) */}
+              <div className="w-full flex gap-4 min-h-[140px] bg-surface-variant/10 p-4 rounded-2xl border border-outline-variant/30 relative mt-4"
+                   onDragOver={(e) => e.preventDefault()}
+                   onDrop={(e) => {
+                      e.preventDefault();
+                      if (isLocked || hasSubmitted) return;
+                      const data = e.dataTransfer.getData('text/plain');
+                      if (!data) return;
+                      let item: any = data;
+                      try { if (data.startsWith('{')) item = JSON.parse(data); } catch(err){}
+                      const oldSlotIdx = slots.findIndex(s => s && s.id === item.id);
+                      if (oldSlotIdx > -1) {
+                        const newSlots = [...slots];
+                        newSlots[oldSlotIdx] = null;
+                        setSlots(newSlots);
+                        setDndOptions([...dndOptions, item]);
+                      }
+                   }}
+              >
+                <span className="absolute -top-3 left-6 bg-background px-2 text-xs font-bold text-on-surface-variant">
+                  ẢNH ĐỂ CHỌN (Click để đưa lên ô trống)
+                </span>
+                {dndOptions.map((item, idx) => (
+                  <div 
+                    key={`opt-img-${item.id}`}
+                    draggable={!isLocked && !hasSubmitted}
+                    onDragStart={(e) => handleDragStart(e, item)}
+                    onClick={() => {
+                      if (isLocked || hasSubmitted) return;
+                      const emptySlotIdx = slots.findIndex(s => s === null);
+                      if (emptySlotIdx > -1) {
+                        const newSlots = [...slots];
+                        newSlots[emptySlotIdx] = item;
+                        setSlots(newSlots);
+                        const newOpts = [...dndOptions];
+                        newOpts.splice(idx, 1);
+                        setDndOptions(newOpts);
+                      }
+                    }}
+                    className="flex-1 max-w-[200px] h-[120px] bg-surface text-on-surface border border-outline-variant rounded-lg flex items-center justify-center cursor-pointer p-1 text-center hover:scale-105 transition-transform shadow-md overflow-hidden relative mx-auto"
+                  >
+                    <img src={item.url} alt={item.id} className="w-full h-full object-contain pointer-events-none" />
+                    <span className="absolute top-2 left-2 bg-black/60 text-white px-2 py-0.5 rounded font-bold">{item.id}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : isDragDrop ? (
         <div className="flex flex-col w-full h-full items-center">
