@@ -200,13 +200,23 @@ export default function Round3View() {
             <div className="w-full max-w-5xl flex flex-col items-center gap-10">
               {/* SLOTS (Answers) */}
               <div className="w-full flex gap-4 bg-surface-variant/30 p-6 rounded-2xl border border-outline-variant/50 relative">
-                <span className="absolute -top-3 left-6 bg-background px-2 text-xs font-bold text-secondary">KHUNG ĐÁP ÁN</span>
+                <span className="absolute -top-3 left-6 bg-background px-2 text-xs font-bold text-secondary">
+                  {isLocked ? "ĐANG KHÓA" : "KHUNG ĐÁP ÁN (Kéo thả hoặc Click)"}
+                </span>
                 {slots.map((item, idx) => (
                   <div 
                     key={`slot-${idx}`} 
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => handleDropSlot(e, idx)}
-                    className="flex-1 min-h-[80px] bg-surface rounded-xl border-2 border-dashed border-primary/40 flex items-center justify-center p-2 transition-colors hover:border-primary"
+                    onClick={() => {
+                      if (isLocked || hasSubmitted || !item) return;
+                      // Move back to options
+                      const newSlots = [...slots];
+                      newSlots[idx] = null;
+                      setSlots(newSlots);
+                      setDndOptions([...dndOptions, item]);
+                    }}
+                    className="flex-1 min-h-[80px] bg-surface rounded-xl border-2 border-dashed border-primary/40 flex items-center justify-center p-2 transition-colors hover:border-primary cursor-pointer"
                   >
                     {item && (
                       <div 
@@ -238,13 +248,27 @@ export default function Round3View() {
                       }
                    }}
               >
-                <span className="absolute -top-3 left-6 bg-background px-2 text-xs font-bold text-on-surface-variant">LỰA CHỌN KÉO THẢ</span>
+                <span className="absolute -top-3 left-6 bg-background px-2 text-xs font-bold text-on-surface-variant">
+                  LỰA CHỌN KÉO THẢ (Click để chọn nhanh)
+                </span>
                 {dndOptions.map((item, idx) => (
                   <div 
                     key={`opt-${idx}`}
                     draggable={!isLocked && !hasSubmitted}
                     onDragStart={(e) => handleDragStart(e, item)}
-                    className="flex-1 bg-surface-variant text-on-surface-variant border border-outline-variant rounded-lg flex items-center justify-center font-bold text-lg cursor-grab active:cursor-grabbing p-4 text-center hover:bg-surface-variant/80 transition-all shadow-md"
+                    onClick={() => {
+                      if (isLocked || hasSubmitted) return;
+                      const emptySlotIdx = slots.findIndex(s => s === null);
+                      if (emptySlotIdx > -1) {
+                        const newSlots = [...slots];
+                        newSlots[emptySlotIdx] = item;
+                        setSlots(newSlots);
+                        const newOpts = [...dndOptions];
+                        newOpts.splice(idx, 1);
+                        setDndOptions(newOpts);
+                      }
+                    }}
+                    className="flex-1 bg-surface-variant text-on-surface-variant border border-outline-variant rounded-lg flex items-center justify-center font-bold text-lg cursor-pointer p-4 text-center hover:bg-surface-variant/80 transition-all shadow-md"
                   >
                     {item}
                   </div>
