@@ -7,7 +7,14 @@ import { useEffect, useState } from "react";
 export default function Round2View() {
   const { socket, gameState, username, role } = useSocket();
   const [answer, setAnswer] = useState('');
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const rs = gameState?.roundState;
+
+  // Reset answer when a new question is selected
+  useEffect(() => {
+    setAnswer('');
+    setHasSubmitted(false);
+  }, [gameState?.currentQuestion?.rowId]);
 
   if (!rs) return null;
 
@@ -177,13 +184,19 @@ export default function Round2View() {
                 <input
                   type="text"
                   value={answer}
-                  onChange={(e) => setAnswer(e.target.value.toUpperCase())}
+                  onChange={(e) => {
+                    setAnswer(e.target.value.toUpperCase());
+                    setHasSubmitted(false);
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && answer.trim()) {
                       socket?.emit('submit_answer', { answer: answer.trim() });
+                      setHasSubmitted(true);
                     }
                   }}
-                  className="flex-1 bg-surface text-on-surface p-1.5 rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none font-bold uppercase text-center text-[11px]"
+                  className={`flex-1 bg-surface p-1.5 rounded border focus:ring-1 outline-none font-bold uppercase text-center text-[11px] transition-colors
+                    ${hasSubmitted ? 'border-secondary/50 text-secondary focus:border-secondary focus:ring-secondary/50' : 'border-outline-variant text-on-surface focus:border-primary focus:ring-primary/50'}
+                  `}
                   placeholder="NHẬP ĐÁP ÁN..."
                   autoComplete="off"
                 />
@@ -191,11 +204,21 @@ export default function Round2View() {
                   onClick={() => {
                     if (answer.trim()) {
                       socket?.emit('submit_answer', { answer: answer.trim() });
+                      setHasSubmitted(true);
                     }
                   }}
-                  className="bg-primary text-on-primary px-3 py-1.5 rounded font-bold hover:bg-primary/90 transition-colors shadow-sm text-[11px]"
+                  className={`px-3 py-1.5 rounded font-bold transition-all shadow-sm text-[11px] flex items-center gap-1
+                    ${hasSubmitted ? 'bg-secondary text-background hover:bg-secondary/90' : 'bg-primary text-on-primary hover:bg-primary/90'}
+                  `}
                 >
-                  GỬI
+                  {hasSubmitted ? (
+                    <>
+                      <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                      ĐÃ GỬI
+                    </>
+                  ) : (
+                    'GỬI'
+                  )}
                 </button>
               </div>
             )}
