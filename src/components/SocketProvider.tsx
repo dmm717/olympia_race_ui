@@ -8,6 +8,7 @@ export interface RoundState {
   part?: 'personal' | 'common';
   isPaused?: boolean;
   questionIndex?: number;
+  mediaVisible?: boolean;
   buzzedPlayer?: string | null;
   bellLocked?: boolean;
   openedRows?: number[];

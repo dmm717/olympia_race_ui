@@ -16,9 +16,7 @@ export default function Round4View() {
     return () => { socket.off('timer_tick', handleTick); };
   }, [socket]);
 
-  if (!rs || !gameState) return null;
-
-  const currentPlayer = gameState.players[rs.currentPlayerIndex];
+  const currentPlayer = gameState?.players?.[rs?.currentPlayerIndex || 0];
   const isMainPlayer = currentPlayer?.username === username;
 
   const handleToggleHopeStar = () => {
@@ -33,7 +31,7 @@ export default function Round4View() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Alt') {
         e.preventDefault();
-        if (role === 'user' && !isMainPlayer && rs.stealPhase && !rs.bellLocked) {
+        if (role === 'user' && !isMainPlayer && rs?.stealPhase && !rs?.bellLocked) {
           handleSteal();
         }
       }
@@ -46,6 +44,8 @@ export default function Round4View() {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [role, isMainPlayer, rs?.stealPhase, rs?.bellLocked, socket]);
+
+  if (!rs || !gameState) return null;
 
   return (
     <div className="flex flex-col items-center justify-start flex-1 w-full h-full relative p-4">

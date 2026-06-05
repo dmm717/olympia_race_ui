@@ -264,13 +264,28 @@ export default function AdminControls() {
 
         {gameState.round === 3 && (
           <div className="flex flex-col gap-3 w-full bg-surface-variant/10 p-3 rounded-xl border border-outline-variant/40 shadow-sm">
-            <button onClick={() => socket.emit('admin_start_round3_question', { duration: 30 })} className="bg-primary-container text-on-primary-container font-bold py-2 px-4 rounded w-full hover:brightness-110">
-              Phát Câu Hỏi (30s)
-            </button>
+            <div className="flex justify-between items-center w-full">
+              <span className="text-[10px] font-label-caps bg-surface-variant px-2 py-0.5 rounded text-on-surface-variant">TĂNG TỐC - CÂU {(rs?.questionIndex || 0) + 1}</span>
+              <button onClick={() => socket.emit('admin_next_question_r3')} className="bg-secondary text-on-secondary py-1 px-4 rounded font-bold shadow-sm hover:bg-secondary/80 transition-transform flex items-center gap-1 text-[11px]">
+                CÂU TIẾP THEO <span className="material-symbols-outlined text-sm">skip_next</span>
+              </button>
+            </div>
+
+            <div className="flex gap-2">
+              <button onClick={() => socket.emit('admin_show_media_r3')} className="bg-tertiary text-on-tertiary font-bold py-2 px-3 rounded flex-1 hover:brightness-110 text-[11px] whitespace-nowrap">
+                Hiện Video/Ảnh
+              </button>
+              <button 
+                onClick={() => socket.emit('admin_start_round3_question')} 
+                className="bg-primary-container text-on-primary-container font-bold py-2 px-3 rounded flex-1 hover:brightness-110 text-[11px] whitespace-nowrap"
+              >
+                Phát Câu Hỏi ({(rs?.questionIndex === 0 || rs?.questionIndex === 1) ? '20s' : '30s'})
+              </button>
+            </div>
             
             <div className="flex flex-col gap-2 bg-surface p-3 rounded-lg border border-outline-variant/50">
               <span className="text-[10px] font-label-caps text-on-surface-variant">ĐÁP ÁN ĐÚNG:</span>
-              <input type="text" id="r3_answer" placeholder="Nhập đáp án đúng..." className="bg-transparent border border-outline-variant rounded px-3 py-2 text-sm text-on-surface outline-none focus:border-primary w-full" />
+              <input type="text" id="r3_answer" placeholder="Ví dụ: 1,2,3,4 hoặc Đáp án A" className="bg-transparent border border-outline-variant rounded px-3 py-2 text-sm text-on-surface outline-none focus:border-primary w-full" />
               <button 
                 onClick={() => {
                   const val = (document.getElementById('r3_answer') as HTMLInputElement).value;
