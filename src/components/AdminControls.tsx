@@ -246,15 +246,20 @@ export default function AdminControls() {
             <button onClick={() => socket.emit('admin_start_round2')} className="bg-primary-container text-on-primary-container font-bold py-2 px-4 rounded w-full hover:brightness-110">
               Bắt đầu Vòng 2 {gameState.gameMode === 'auto' ? '(Tự Động)' : ''}
             </button>
-            {gameState.gameMode === 'manual' && rs?.obstacleBuzzedPlayer && (
+            {gameState.gameMode === 'manual' && rs?.obstacleBuzzedPlayers && rs.obstacleBuzzedPlayers.length > 0 && (
               <div className="flex flex-col gap-2 bg-error/10 p-3 rounded-lg border border-error/50 mt-2">
-                <span className="font-bold text-error text-center text-sm">⚠️ {rs.obstacleBuzzedPlayer} TRẢ LỜI CNV!</span>
+                <span className="font-bold text-error text-center text-sm">⚠️ {rs.obstacleBuzzedPlayers[0]} TRẢ LỜI CNV!</span>
+                {rs.obstacleBuzzedPlayers.length > 1 && (
+                  <div className="text-[10px] text-error/80 text-center -mt-1">
+                    Chờ tiếp theo: {rs.obstacleBuzzedPlayers.slice(1).join(', ')}
+                  </div>
+                )}
                 <div className="flex gap-2 w-full">
                   <button onClick={() => socket.emit('admin_judge_obstacle', { correct: true })} className="bg-green-600/20 text-green-500 border border-green-600/50 py-1.5 rounded hover:bg-green-600 hover:text-white font-bold flex-1 text-[11px] transition-colors">
                     ĐÚNG CNV
                   </button>
                   <button onClick={() => socket.emit('admin_judge_obstacle', { correct: false })} className="bg-red-600/20 text-red-500 border border-red-600/50 py-1.5 rounded hover:bg-red-600 hover:text-white font-bold flex-1 text-[11px] transition-colors">
-                    SAI CNV
+                    SAI CNV (Loại & Tiếp Tục)
                   </button>
                 </div>
               </div>
@@ -352,6 +357,13 @@ export default function AdminControls() {
                 {rs?.stealPhase ? (
                    <div className="flex flex-col gap-2 bg-error/10 p-2 rounded border border-error/30">
                      <span className="font-bold text-error text-[11px] text-center">GIÀNH QUYỀN: {rs?.buzzedPlayer || 'Đang chờ...'}</span>
+                     
+                     {!rs?.buzzedPlayer && rs?.bellLocked && (
+                        <button onClick={() => socket.emit('admin_r4_open_steal_bell')} className="w-full bg-blue-600/20 text-blue-500 border border-blue-600/50 py-1.5 rounded font-bold text-[11px] hover:bg-blue-600 hover:text-white transition-colors">
+                          MỞ CHUÔNG CƯỚP ĐIỂM (5s)
+                        </button>
+                     )}
+
                      {rs?.buzzedPlayer && (
                        <div className="flex gap-2">
                         <button onClick={() => socket.emit('admin_r4_judge_steal', { correct: true })} className="flex-1 bg-green-600/20 text-green-500 border border-green-600/50 py-1.5 rounded font-bold text-[11px] hover:bg-green-600 hover:text-white">ĐÚNG CƯỚP</button>

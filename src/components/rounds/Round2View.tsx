@@ -20,8 +20,9 @@ export default function Round2View() {
 
   const isEliminated = rs.eliminatedPlayers?.includes(username);
 
+  const hasBuzzed = !!(rs?.obstacleBuzzedPlayers?.includes(gameState.players[gameState.currentPlayerIndex]?.username));
   const handleBuzzObstacle = () => {
-    if (!rs.obstacleBuzzedPlayer && !isEliminated) {
+    if (!hasBuzzed && !isEliminated) {
       socket?.emit('ring_bell_obstacle');
     }
   };
@@ -277,7 +278,7 @@ export default function Round2View() {
         )}
 
         {/* Nút bấm chuông chướng ngại vật (User Only) */}
-        {role === 'user' && !rs.obstacleBuzzedPlayer && (
+        {role === 'user' && !hasBuzzed && (
           <div className="mt-2 z-10 w-full flex justify-center flex-shrink-0">
             {isEliminated ? (
               <div className="w-full bg-surface-variant text-on-surface-variant py-2 text-center rounded font-bold border border-outline-variant/50 text-xs">
@@ -300,15 +301,17 @@ export default function Round2View() {
         )}
 
         {/* Cảnh báo có người bấm chướng ngại vật */}
-        {rs.obstacleBuzzedPlayer && (
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }} 
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-error text-on-error px-4 py-4 rounded-xl font-headline-lg text-lg text-center shadow-[0_0_20px_rgba(255,180,171,0.5)] border-2 border-white mt-4 flex justify-center items-center gap-2"
-          >
-            <span className="material-symbols-outlined animate-ping">warning</span>
-            TÍN HIỆU TỪ: {rs.obstacleBuzzedPlayer}
-          </motion.div>
+        {rs.obstacleBuzzedPlayers && rs.obstacleBuzzedPlayers.length > 0 && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-error text-white font-bold py-2 px-6 rounded-lg shadow-lg z-50 flex flex-col items-center gap-1 border-2 border-white/20 min-w-[200px]">
+            <span className="text-[10px] uppercase opacity-90 mb-1">Thứ tự bấm chuông CNV</span>
+            {rs.obstacleBuzzedPlayers.map((player, idx) => (
+              <div key={player} className={`flex items-center gap-2 w-full justify-center ${idx === 0 ? "text-lg drop-shadow font-black animate-pulse text-yellow-300" : "text-sm opacity-90"}`}>
+                <span>{idx + 1}.</span>
+                <span>{player}</span>
+                {idx === 0 && <span className="material-symbols-outlined text-[16px]">touch_app</span>}
+              </div>
+            ))}
+          </div>
         )}
 
       </div>

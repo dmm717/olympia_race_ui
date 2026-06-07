@@ -12,7 +12,7 @@ export interface RoundState {
   buzzedPlayer?: string | null;
   bellLocked?: boolean;
   openedRows?: number[];
-  obstacleBuzzedPlayer?: string | null;
+  obstacleBuzzedPlayers?: string[];
   obstacleSolved?: boolean;
   submissions?: { username: string; answer: string; timeMs: number; judged?: 'correct' | 'wrong' }[];
   currentPlayerIndex: number;
@@ -21,6 +21,7 @@ export interface RoundState {
   hopeStarUsed?: boolean;
   stealPhase?: boolean;
   eliminatedPlayers?: string[];
+  eliminatedFromSteal?: string[];
 }
 
 export interface GameState {
