@@ -382,6 +382,14 @@ export default function AdminControls() {
                   </button>
                 </div>
                 {/* Judging */}
+                {gameState.currentQuestion && (
+                  <div className="flex flex-col gap-1 mt-2 mb-1">
+                    <span className="text-[10px] font-label-caps text-on-surface-variant">ĐÁP ÁN ĐÚNG:</span>
+                    <div className="font-bold text-sm text-primary">
+                      {gameState.currentQuestion.answer || "Chưa có đáp án"}
+                    </div>
+                  </div>
+                )}
                 <span className="text-[10px] font-label-caps text-on-surface-variant mt-1 border-t border-outline-variant/30 pt-3">CHẤM ĐIỂM:</span>
                 {rs?.stealPhase ? (
                    <div className="flex flex-col gap-2 bg-error/10 p-2 rounded border border-error/30">
