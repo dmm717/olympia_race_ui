@@ -316,6 +316,9 @@ export default function AdminControls() {
             
             <div className="flex flex-col gap-2 bg-surface p-3 rounded-lg border border-outline-variant/50">
               <span className="text-[10px] font-label-caps text-on-surface-variant">ĐÁP ÁN ĐÚNG:</span>
+              <div className="font-bold text-sm text-primary mb-2">
+                {gameState.currentQuestion?.answer || "Chưa có đáp án"}
+              </div>
               <input type="text" id="r3_answer" placeholder="Ví dụ: 1,2,3,4 hoặc Đáp án A" className="bg-transparent border border-outline-variant rounded px-3 py-2 text-sm text-on-surface outline-none focus:border-primary w-full" />
               <button 
                 onClick={() => {

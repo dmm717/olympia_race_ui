@@ -206,6 +206,17 @@ export default function Round3View() {
               <h2 className="text-2xl font-headline-lg text-on-surface leading-relaxed">
                 {q.text}
               </h2>
+              {q.options && q.options.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6 w-full text-left">
+                  {q.options.map((opt: string, idx: number) => (
+                    <div key={idx} className="bg-surface-variant text-on-surface-variant p-4 rounded-xl border border-outline-variant font-bold text-lg cursor-pointer hover:bg-primary hover:text-on-primary transition-colors flex items-center shadow-sm"
+                         onClick={() => { if (!isLocked && !hasSubmitted) setMyAnswer(opt); }}>
+                      
+                      {opt}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {role === 'user' && (
