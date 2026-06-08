@@ -120,7 +120,7 @@ export default function Round2View() {
              return (
                <div key={rowId} className="flex items-center gap-1.5 w-full">
                  <div className="flex-1 flex gap-1 justify-start items-center p-1.5 bg-surface-variant/20 rounded-lg border border-outline-variant/30 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] min-h-[36px]">
-                   {Array.from({length}).map((_, idx) => (
+                   {[...Array(length)].map((_, idx) => (
                      <div 
                         key={idx} 
                         className={`w-6 h-6 flex-shrink-0 rounded flex items-center justify-center font-bold text-xs shadow-[inset_0_-1px_3px_rgba(0,0,0,0.5),0_1px_2px_rgba(0,0,0,0.3)] transition-colors duration-500
