@@ -97,7 +97,7 @@ export default function Round1View() {
           animate={{ opacity: 1, y: 0 }}
           className="glass-card w-full max-w-4xl p-8 rounded-2xl border-2 border-primary/50 text-center mb-12 shadow-[0_0_30px_rgba(165,28,48,0.2)] flex flex-col items-center"
         >
-          <span className="text-secondary font-label-caps mb-4 block">CÂU HỎI SỐ {(rs.questionIndex || 0) + 1}</span>
+          {/* Removed CÂU HỎI SỐ */}
           <h2 className="text-3xl md:text-4xl font-headline-lg text-on-surface leading-relaxed">
             {gameState.currentQuestion.text}
           </h2>

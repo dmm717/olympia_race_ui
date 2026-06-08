@@ -243,12 +243,30 @@ export default function AdminControls() {
 
         {gameState.round === 2 && (
           <div className="flex flex-col gap-3 w-full bg-surface-variant/10 p-3 rounded-xl border border-outline-variant/40 shadow-sm">
-            {gameState.questions?.round2?.imageUrl && (
-               <div className="w-full aspect-video rounded-lg overflow-hidden border border-outline-variant/40 mt-2 relative">
-                 <img src={gameState.questions.round2.imageUrl} alt="Chướng ngại vật" className="w-full h-full object-cover" />
-                 <div className="absolute inset-0 flex items-end justify-center pb-2 pointer-events-none">
-                    <span className="text-white text-xs font-bold px-2 py-1 bg-black/60 rounded">Ảnh Chướng Ngại Vật</span>
-                 </div>
+            {gameState.questions?.round2 && (
+               <div className="w-full bg-surface/50 rounded-lg overflow-hidden border border-outline-variant/40 mt-2 flex flex-col">
+                 {gameState.questions.round2.imageUrl && (
+                   <div className="w-full aspect-video relative">
+                     <img src={gameState.questions.round2.imageUrl} alt="Chướng ngại vật" className="w-full h-full object-cover opacity-40 mix-blend-luminosity" />
+                     <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-4">
+                        <span className="text-white/80 text-[10px] uppercase font-bold tracking-widest mb-1">ĐÁP ÁN CHƯỚNG NGẠI VẬT</span>
+                        <span className="text-yellow-400 font-headline-lg text-xl drop-shadow-md text-center leading-tight">
+                          {gameState.questions.round2.keyword}
+                        </span>
+                     </div>
+                   </div>
+                 )}
+                 {gameState.questions.round2.rows && (
+                   <div className="p-3 bg-surface border-t border-outline-variant/30 flex flex-col gap-1.5">
+                     <span className="text-[10px] text-primary font-bold uppercase mb-1">Đáp án hàng ngang:</span>
+                     {gameState.questions.round2.rows.map((row: any) => (
+                       <div key={row.rowId} className="flex items-center justify-between text-xs border-b border-outline-variant/20 pb-1.5 last:border-0 last:pb-0">
+                         <span className="text-on-surface-variant font-medium whitespace-nowrap">Hàng {row.rowId}:</span>
+                         <span className="font-bold text-on-surface text-right truncate ml-2 text-[11px]">{row.answer}</span>
+                       </div>
+                     ))}
+                   </div>
+                 )}
                </div>
             )}
             <button onClick={() => socket.emit('admin_start_round2')} className="bg-primary-container text-on-primary-container font-bold py-2 px-4 rounded w-full hover:brightness-110">

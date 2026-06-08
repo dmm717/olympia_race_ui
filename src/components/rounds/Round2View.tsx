@@ -277,12 +277,16 @@ export default function Round2View() {
           </motion.div>
         )}
 
-        {/* Nút bấm chuông chướng ngại vật (User Only) */}
-        {role === 'user' && !hasBuzzed && (
-          <div className="mt-2 z-10 w-full flex justify-center flex-shrink-0">
+        {/* Khu vực bấm chuông chướng ngại vật (User Only) */}
+        {role === 'user' && (
+          <div className="mt-2 z-10 w-full flex flex-col items-center flex-shrink-0 gap-3">
             {isEliminated ? (
               <div className="w-full bg-surface-variant text-on-surface-variant py-2 text-center rounded font-bold border border-outline-variant/50 text-xs">
                 BẠN ĐÃ BỊ LOẠI KHỎI VÒNG NÀY
+              </div>
+            ) : hasBuzzed ? (
+              <div className="w-full bg-surface-variant text-primary py-2 text-center rounded font-bold border border-outline-variant/50 text-sm shadow-inner uppercase">
+                Bạn đã bấm chuông!
               </div>
             ) : (
               <motion.button
@@ -300,11 +304,11 @@ export default function Round2View() {
           </div>
         )}
 
-        {/* Cảnh báo có người bấm chướng ngại vật */}
-        {rs.obstacleBuzzedPlayers && rs.obstacleBuzzedPlayers.length > 0 && (
+        {/* Cảnh báo có người bấm chướng ngại vật (Chỉ hiển thị cho màn hình trình chiếu/Admin) */}
+        {role === 'admin' && rs.obstacleBuzzedPlayers && rs.obstacleBuzzedPlayers.length > 0 && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-error text-white font-bold py-2 px-6 rounded-lg shadow-lg z-50 flex flex-col items-center gap-1 border-2 border-white/20 min-w-[200px]">
             <span className="text-[10px] uppercase opacity-90 mb-1">Thứ tự bấm chuông CNV</span>
-            {rs.obstacleBuzzedPlayers.map((player, idx) => (
+            {rs.obstacleBuzzedPlayers.map((player: string, idx: number) => (
               <div key={player} className={`flex items-center gap-2 w-full justify-center ${idx === 0 ? "text-lg drop-shadow font-black animate-pulse text-yellow-300" : "text-sm opacity-90"}`}>
                 <span>{idx + 1}.</span>
                 <span>{player}</span>
