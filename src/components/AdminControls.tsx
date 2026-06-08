@@ -243,6 +243,14 @@ export default function AdminControls() {
 
         {gameState.round === 2 && (
           <div className="flex flex-col gap-3 w-full bg-surface-variant/10 p-3 rounded-xl border border-outline-variant/40 shadow-sm">
+            {gameState.questions?.round2?.imageUrl && (
+               <div className="w-full aspect-video rounded-lg overflow-hidden border border-outline-variant/40 mt-2 relative">
+                 <img src={gameState.questions.round2.imageUrl} alt="Chướng ngại vật" className="w-full h-full object-cover" />
+                 <div className="absolute inset-0 flex items-end justify-center pb-2 pointer-events-none">
+                    <span className="text-white text-xs font-bold px-2 py-1 bg-black/60 rounded">Ảnh Chướng Ngại Vật</span>
+                 </div>
+               </div>
+            )}
             <button onClick={() => socket.emit('admin_start_round2')} className="bg-primary-container text-on-primary-container font-bold py-2 px-4 rounded w-full hover:brightness-110">
               Bắt đầu Vòng 2 {gameState.gameMode === 'auto' ? '(Tự Động)' : ''}
             </button>
