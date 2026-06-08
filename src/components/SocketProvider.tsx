@@ -135,56 +135,58 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       setQuestions(data);
     });
 
-    newSocket.on('bell_buzzed', (data: { username: string }) => {
+    // Helper: Play Olympia-style bell "ding" sound
+    const playOlympiaBell = () => {
       try {
         const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-        if (AudioCtx) {
-          const ctx = new AudioCtx();
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const t = ctx.currentTime;
+
+        // Olympia bell: bright metallic "DING" with harmonics
+        const freqs = [880, 1760, 2640, 3520]; // A5 + harmonics
+        const gains = [0.35, 0.15, 0.08, 0.04]; // decreasing volume per harmonic
+        const decays = [1.2, 0.8, 0.5, 0.3]; // ring-out duration
+
+        freqs.forEach((freq, i) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
-          
-          osc.type = 'square';
-          osc.frequency.setValueAtTime(600, ctx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
-          
-          gain.gain.setValueAtTime(0.2, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-          
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, t);
+
+          gain.gain.setValueAtTime(gains[i], t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + decays[i]);
+
           osc.connect(gain);
           gain.connect(ctx.destination);
-          
-          osc.start();
-          osc.stop(ctx.currentTime + 0.3);
-        }
-      } catch(e) {
+          osc.start(t);
+          osc.stop(t + decays[i]);
+        });
+
+        // Add a short click/strike transient for realism
+        const clickOsc = ctx.createOscillator();
+        const clickGain = ctx.createGain();
+        clickOsc.type = 'triangle';
+        clickOsc.frequency.setValueAtTime(4000, t);
+        clickOsc.frequency.exponentialRampToValueAtTime(500, t + 0.02);
+        clickGain.gain.setValueAtTime(0.3, t);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+        clickOsc.connect(clickGain);
+        clickGain.connect(ctx.destination);
+        clickOsc.start(t);
+        clickOsc.stop(t + 0.05);
+      } catch (e) {
         console.error('Audio play error:', e);
       }
+    };
+
+    newSocket.on('bell_buzzed', (data: { username: string }) => {
+      playOlympiaBell();
     });
 
     newSocket.on('obstacle_buzzed', (data: { username: string }) => {
-      try {
-        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-        if (AudioCtx) {
-          const ctx = new AudioCtx();
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(400, ctx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.15);
-          
-          gain.gain.setValueAtTime(0.3, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-          
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          
-          osc.start();
-          osc.stop(ctx.currentTime + 0.5);
-        }
-      } catch(e) {
-        console.error('Audio play error:', e);
-      }
+      playOlympiaBell();
     });
 
     socketRef.current = newSocket;
