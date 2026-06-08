@@ -20,7 +20,7 @@ export default function Round2View() {
 
   const isEliminated = rs.eliminatedPlayers?.includes(username);
 
-  const hasBuzzed = !!(rs?.obstacleBuzzedPlayers?.includes(gameState.players[gameState.currentPlayerIndex]?.username));
+  const hasBuzzed = !!(rs?.obstacleBuzzedPlayers?.includes(username));
   const handleBuzzObstacle = () => {
     if (!hasBuzzed && !isEliminated) {
       socket?.emit('ring_bell_obstacle');
